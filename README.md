@@ -2,8 +2,12 @@
 
 This is a simple table generator for https://en.wikipedia.org/wiki/Template:2019%E2%80%9320_coronavirus_pandemic_data/Brazil_medical_cases
 
+## Requirements
+This code requires PHP 7.1 or above.
+
+## Usage
 To use it
 * download the current CSV file from https://covid.saude.gov.br
 * update the `data/current.csv` file
-* run `php/main.php`
+* run `php main.php`
 * copy the contents of `data/output.txt` to wikipedia

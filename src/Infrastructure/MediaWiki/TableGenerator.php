@@ -81,11 +81,11 @@ class TableGenerator
 {| class="wikitable mw-datatable mw-collapsible" style="font-size:80%; text-align: center;"
 |+ style="font-size:125%" |{{nowrap|COVID-19 cases and deaths in Brazil, by state({{navbar|2019–20 coronavirus pandemic data/Brazil medical cases|mini=1|nodiv=1}})}}
 !rowspan=2 colspan=2|
-!colspan=7| North
-!colspan=9|	Northeast
-!colspan=4| Central-West
-!colspan=4| Southeast
-!colspan=3| South
+!colspan=7| [[North_Region,_Brazil|North]]
+!colspan=9| [[Northeast_Region,_Brazil|Northeast]]
+!colspan=4| [[Central-West_Region,_Brazil|Central-West]]
+!colspan=4| [[Southeast_Region,_Brazil|Southeast]]
+!colspan=3| [[South_Region,_Brazil|South]]
 !colspan=2| Cases
 !colspan=2| Deaths
 |-
@@ -172,11 +172,11 @@ HEADER;
 ! New
 ! Total
 |-
-!colspan=7| North
-!colspan=9|	Northeast
-!colspan=4| Central-West
-!colspan=4| Southeast
-!colspan=3| South
+!colspan=7| [[North_Region,_Brazil|North]]
+!colspan=9| [[Northeast_Region,_Brazil|Northeast]]
+!colspan=4| [[Central-West_Region,_Brazil|Central-West]]
+!colspan=4| [[Southeast_Region,_Brazil|Southeast]]
+!colspan=3| [[South_Region,_Brazil|South]]
 
 !colspan=2| Cases
 !colspan=2| Deaths
@@ -184,12 +184,14 @@ HEADER;
 | colspan="33" |
 |-
 | colspan="33" style="text-align: left;" | Notes:<br/>
-{{note|1}} Official data provided by the Brazilian Ministry of Health <ref>{{cite web|url=https://covid.saude.gov.br/|title=Ministério da Saúde|date=April 2020}}</ref>.<br/>
-{{note|2}} This is an auto generated table.
+{{note|1}} Official data provided by the Brazilian Ministry of Health <ref>{{cite web|url=https://covid.saude.gov.br/|title=Ministério da Saúde|date=April 2020}}</ref>.
 |-
 |}
-{{clear}}
 <noinclude>
+== Update instructions ==
+This is table is generated using the data provided by the Brazilian Ministry of Health.<br/>
+Check the update instructions on https://github.com/hagnat/covid
+
 {{2019-nCoV|state=expanded}}
 [[Category:2020 coronavirus pandemic in Brazil templates]]
 [[Category:Templates that generate named references]]
