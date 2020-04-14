@@ -22,9 +22,9 @@ class TableGenerator
 
 	private function getDateInterval(): \DatePeriod
 	{
-		$begin = new \DateTime( '2020-02-26' );
-		$end = new \DateTime( 'today' );
-		$end = $end->modify( '+1 day' );
+		$begin = new \DateTime('2020-02-26');
+		$end = new \DateTime('today');
+		$end = $end->modify('+1 day');
 
 		$interval = new \DateInterval('P1D');
 		
@@ -189,7 +189,7 @@ HEADER;
 |}
 <noinclude>
 == Update instructions ==
-This is table is generated using the data provided by the Brazilian Ministry of Health.<br/>
+This table is generated using data provided by the Brazilian Ministry of Health.<br/>
 Check the update instructions on https://github.com/hagnat/covid
 
 {{2019-nCoV|state=expanded}}
