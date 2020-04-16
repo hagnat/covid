@@ -41,7 +41,7 @@ class PortugueseTable implements ParserInterface
 		// $states = ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'];
 		$states = ['AC', 'AP', 'AM', 'PA', 'RO', 'RR', 'TO', 'AL', 'BA', 'CE', 'MA', 'PB', 'PE', 'PI', 'RN', 'SE', 'DF', 'GO', 'MT', 'MS', 'ES', 'MG', 'RJ', 'SP', 'PR', 'RS', 'SC'];
 
-		$row = "!rowspan=2 style='vertical-align:top'| " . $day->format('M j') . "\n! Casos\n";
+		$row = "!rowspan=2 style='vertical-align:top'| " . $day->format('d/m') . "\n! Casos\n";
 
 		foreach ($states as $key => $state) {
 			$row .= !$key ? '| ' : '|| ';
