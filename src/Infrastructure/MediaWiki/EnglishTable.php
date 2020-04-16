@@ -2,12 +2,13 @@
 
 namespace App\Infrastructure\MediaWiki;
 
+use App\Application\ParserInterface;
 use App\Domain\ReportedCase;
 use App\Domain\ReportedCases;
 
-class TableGenerator
+class EnglishTable implements ParserInterface
 {
-	public function parse(ReportedCases $cases)
+	public function parse(ReportedCases $cases): string
 	{
 		$contents = $this->buildHeader();
 

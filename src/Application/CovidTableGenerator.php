@@ -3,7 +3,6 @@
 namespace App\Application;
 
 use App\Infrastructure\CovidCsvReader;
-use App\Infrastructure\MediaWiki\TableGenerator as MediaWikiTableGenerator;
 
 class CovidTableGenerator
 {
@@ -11,13 +10,13 @@ class CovidTableGenerator
 	private $reader;
 	private $parser;
 
-	public function __construct()
+	public function __construct(ParserInterface $parser, string $outputFile)
 	{
 		$this->input = __DIR__ . '/../../data/current.csv';
-		$this->output = __DIR__ . '/../../data/output.txt';
+		$this->output = $outputFile;
 
 		$this->reader = new CovidCsvReader;
-		$this->parser = new MediaWikiTableGenerator;
+		$this->parser = $parser;
 	}
 
 	public function execute()
