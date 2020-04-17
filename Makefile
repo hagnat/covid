@@ -8,10 +8,14 @@ install:
 vendor/autoload.php:
 	bin/composer install
 
-english:
+download:
+	@echo '=> downloading current data'
+	php bin/download-data.php
+
+english: download
 	@echo '=> generating english table'
 	php bin/english.php
 
-portuguese:
+portuguese: download
 	@echo '=> generating english table'
 	php bin/portuguese.php
