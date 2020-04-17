@@ -1,11 +1,11 @@
 <?php
 
-define('ROOT_DIR', __DIR__ . '/..');
+define('ROOT_DIR', realpath(__DIR__ . '/..'));
 
-$inputFile = ROOT_DIR . '/var/input/current.csv';
+$currentFile = ROOT_DIR . '/var/input/current.csv';
 $archiveFile = ROOT_DIR . sprintf("/var/input/%s-brasil-covid-data.csv", date('Y-m-d'));
 
-if (date('Y-m-d H', filemtime($inputFile)) == date('Y-m-d H')) {
+if (file_exists($currentFile) && date('Y-m-d H', filemtime($currentFile)) == date('Y-m-d H')) {
 	die ("   File was recently updated. No need to download it again.\n");
 }
 
@@ -27,9 +27,11 @@ echo "   Parsing data to CSV format...\n";
 $contents = json_decode($result, true);
 $data = file_get_contents($contents['results']['0']['arquivo']['url']);
 
-echo "   Saving CSV data to input files...\n";
-@unlink($inputFile);
-file_put_contents($inputFile, $data);
+echo "   Saving CSV data to archive file...\n";
 file_put_contents($archiveFile, $data);
+
+echo "   Updating current.csv symlink...";
+@unlink($currentFile);
+symlink ($archiveFile, $currentFile);
 
 echo "   Download complete!\n";
