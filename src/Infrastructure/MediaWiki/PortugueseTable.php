@@ -41,7 +41,7 @@ class PortugueseTable implements ParserInterface
 		// $states = ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'];
 		$states = ['AC', 'AP', 'AM', 'PA', 'RO', 'RR', 'TO', 'AL', 'BA', 'CE', 'MA', 'PB', 'PE', 'PI', 'RN', 'SE', 'DF', 'GO', 'MT', 'MS', 'ES', 'MG', 'RJ', 'SP', 'PR', 'RS', 'SC'];
 
-		$row = "!rowspan=2 style='vertical-align:top'| " . $day->format('d/m') . "\n! Casos\n";
+		$row = "\n!rowspan=2 style='vertical-align:top'| " . $day->format('d/m') . "\n! Casos\n";
 
 		foreach ($states as $key => $state) {
 			$row .= !$key ? '| ' : '|| ';
@@ -74,17 +74,6 @@ class PortugueseTable implements ParserInterface
 	private function buildHeader()
 	{
 		return <<<HEADER
-<noinclude>
-{{AP|Pandemia de COVID-19 no Brasil}}
-
-== Instruções de Uso ==
-Esta tabela foi preenchida usando dados fornecidos pelo Ministério da Saúde do Brasil.<br/>
-Por favor '''*não*''' modifique os dados desta tabela com os dados fornecidos pelas secretarias de saúde estaduais. Isto irá causar inconsistencia dos dados.
-
-Você pode atualizar esta Predefinição inteira usando o script PHP encontrado em https://github.com/hagnat/covid
-
-== Casos de COVID-19 no Brasil ==
-</noinclude>
 {| class="wikitable mw-datatable mw-collapsible" style="font-size:80%; text-align: center;"
 |+ style="font-size:125%" |{{nowrap|Casos e mortes pela COVID-19 no Brasil, por estado ({{navbar|{{subst:PAGENAME}}|mini=1|nodiv=1}})}}
 !rowspan=2 colspan=2|
@@ -103,7 +92,6 @@ Você pode atualizar esta Predefinição inteira usando o script PHP encontrado 
 ! {{flagicon|Rondônia}} <br/> [[Rondônia|RO]]
 ! {{flagicon|Roraima}} <br/> [[Roraima|RR]]
 ! {{flagicon|Tocantins}} <br/> [[Tocantins|TO]]
-
 ! {{flagicon|Alagoas}} <br/> [[Alagoas|AL]]
 ! {{flagicon|Bahia}} <br/> [[Bahia|BA]]
 ! {{flagicon|Ceará}} <br/> [[Ceará|CE]]
@@ -113,27 +101,22 @@ Você pode atualizar esta Predefinição inteira usando o script PHP encontrado 
 ! {{flagicon|Piauí}} <br/> [[Piauí|PI]]
 ! {{flagicon|Rio Grande do Norte}} <br/> [[Rio Grande do Norte|RN]]
 ! {{flagicon|Sergipe}} <br/> [[Sergipe|SE]]
-
 ! {{flagicon|Distrito Federal}} <br/> [[Distrito Federal (Brasil)|DF]]
 ! {{flagicon|Goiás}} <br/> [[Goiás|GO]]
 ! {{flagicon|Mato Grosso}} <br/> [[Mato Grosso|MT]]
 ! {{flagicon|Mato Grosso do Sul}} <br/> [[Mato Grosso do Sul|MS]]
-
 ! {{flagicon|Espírito Santo}} <br/> [[Espírito Santo (estado)|ES]]
 ! {{flagicon|Minas Gerais}} <br/> [[Minas Gerais|MG]]
 ! {{flagicon|Rio de Janeiro}} <br/> [[Rio de Janeiro|RJ]] 
 ! {{flagicon|São Paulo}} <br/> [[São Paulo|SP]]
-
 ! {{flagicon|Paraná}} <br/> [[Paraná|PR]]
 ! {{flagicon|Rio Grande do Sul}} <br/> [[Rio Grande do Sul|RS]]
 ! {{flagicon|Santa Catarina}} <br/> [[Santa Catarina|SC]]
-
 ! Novos
 ! Total
 ! Novos
 ! Total
 |-
-
 HEADER;
 	}
 
@@ -149,7 +132,6 @@ HEADER;
 ! {{flagicon|Rondônia}} <br/> [[Rondônia|RO]]
 ! {{flagicon|Roraima}} <br/> [[Roraima|RR]]
 ! {{flagicon|Tocantins}} <br/> [[Tocantins|TO]]
-
 ! {{flagicon|Alagoas}} <br/> [[Alagoas|AL]]
 ! {{flagicon|Bahia}} <br/> [[Bahia|BA]]
 ! {{flagicon|Ceará}} <br/> [[Ceará|CE]]
@@ -159,21 +141,17 @@ HEADER;
 ! {{flagicon|Piauí}} <br/> [[Piauí|PI]]
 ! {{flagicon|Rio Grande do Norte}} <br/> [[Rio Grande do Norte|RN]]
 ! {{flagicon|Sergipe}} <br/> [[Sergipe|SE]]
-
 ! {{flagicon|Distrito Federal}} <br/> [[Distrito Federal (Brasil)|DF]]
 ! {{flagicon|Goiás}} <br/> [[Goiás|GO]]
 ! {{flagicon|Mato Grosso}} <br/> [[Mato Grosso|MT]]
 ! {{flagicon|Mato Grosso do Sul}} <br/> [[Mato Grosso do Sul|MS]]
-
 ! {{flagicon|Espírito Santo}} <br/> [[Espírito Santo (estado)|ES]]
 ! {{flagicon|Minas Gerais}} <br/> [[Minas Gerais|MG]]
 ! {{flagicon|Rio de Janeiro}} <br/> [[Rio de Janeiro|RJ]] 
 ! {{flagicon|São Paulo}} <br/> [[São Paulo|SP]]
-
 ! {{flagicon|Paraná}} <br/> [[Paraná|PR]]
 ! {{flagicon|Rio Grande do Sul}} <br/> [[Rio Grande do Sul|RS]]
 ! {{flagicon|Santa Catarina}} <br/> [[Santa Catarina|SC]]
-
 ! Novos
 ! Total
 ! Novos
@@ -184,7 +162,6 @@ HEADER;
 !colspan=4| [[Região Centro-Oeste do Brasil|Centro-Oeste]]
 !colspan=4| [[Região Sudeste do Brasil|Sudeste]]
 !colspan=3| [[Região Sul do Brasil|Sul]]
-
 !colspan=2| Casos
 !colspan=2| Mortes
 |-
@@ -193,20 +170,7 @@ HEADER;
 | colspan="33" style="text-align: left;" | Notas:<br/>
 {{nota|1}} Balanço oficial dos casos segundo o Ministério da Saúde. <ref>{{citar web|url=https://covid.saude.gov.br/|titulo=Ministério da Saúde|data=Abril 2020}}</ref>.
 |-
-|}
-<noinclude>
-{{Referências}}
-== Ligações externas ==
-* https://covid.saude.gov.br/ – Painel Coronavirus - Ministério da Saúde do Brasil, atualizado diariamente
-* https://github.com/hagnat/covid - ferramenta para atualizar esta Predefinição
-
-{{Pandemia de COVID-19 no Brasil}}
-{{Pandemia de COVID-19}}
-{{Portal3|COVID-19|Brasil|Saúde}}
-
-[[Categoria:Pandemia de COVID-19 no Brasil]]
-</noinclude>
-
+|}<noinclude>{{documentação}}</noinclude>
 FOOTER;
 	}
 }
