@@ -28,6 +28,21 @@ class ReportedCases
 		$this->reportedCases[$case->day->format('Y-m-d')]['_metadata']['cumulativeDeaths'] += $case->cumulativeDeaths;		
 	}
 
+	public function filterByRegion(string $region): ReportedCases
+	{
+		$filteredCases = new ReportedCases;
+		
+		foreach ($this->reportedCases as $day => $dayContents) {
+			foreach ($dayContents['data'] as $case) {
+				if (strtoupper($region) === strtoupper($case->region)) {
+					$filteredCases->add($case);
+				}
+			}
+		}
+
+		return $filteredCases;
+	}
+
 	public function getReportedCase(\DateTime $day, string $state)
 	{
 		return isset($this->reportedCases[$day->format('Y-m-d')]['data'][$state])

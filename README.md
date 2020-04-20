@@ -15,6 +15,7 @@ This code requires:
 * run `make`
 * validate the generated tables on `var/output`
 * copy the contents of `data/output/englishTable.txt` to https://en.wikipedia.org/wiki/Template:2019%E2%80%9320_coronavirus_pandemic_data/Brazil_medical_cases
+* copy the contents of `data/output/englishGraphs.txt` to the __Statistics__ section on https://en.wikipedia.org/wiki/2020_coronavirus_pandemic_in_Brazil/Statistics  
 * copy the contents of `data/output/portugueseTable.txt` to https://pt.wikipedia.org/wiki/Predefini%C3%A7%C3%A3o:Casos_de_COVID-19_no_Brasil
 
 ## Thanks
