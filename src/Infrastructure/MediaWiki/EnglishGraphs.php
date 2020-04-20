@@ -277,7 +277,7 @@ TABLE;
         $dates = [];
 
         foreach ($this->getDateInterval() as $day) {
-            $dates[] = $day->format('j M');
+            $dates[] = $day->format('M j');
         }        
 
         return $dates;
