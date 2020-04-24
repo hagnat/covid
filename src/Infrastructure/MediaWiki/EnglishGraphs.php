@@ -8,7 +8,7 @@ use App\Domain\ReportedCases;
 
 class EnglishGraphs implements ParserInterface
 {
-    public function parse(ReportedCases $cases): string
+    public function parse($cases): string
     {
         $contents = $this->buildHeader();
 

@@ -8,7 +8,7 @@ use App\Domain\ReportedCases;
 
 class EnglishTable implements ParserInterface
 {
-	public function parse(ReportedCases $cases): string
+	public function parse($cases): string
 	{
 		$contents = $this->buildHeader();
 
@@ -74,18 +74,6 @@ class EnglishTable implements ParserInterface
 	private function buildHeader()
 	{
 		return <<<HEADER
-<noinclude>
-<div style='float: right;'>{{VEFriendly}}</div>
-{{main|2020 coronavirus pandemic in Brazil}}
-
-== Update instructions ==
-This table is populated using data provided by the Brazilian Ministry of Health.<br/>
-Please '''do *not*''' update it with the the state's local data, as this might cause data inconsistencies.
-
-You can automatically generate this entire page using the PHP script found on https://github.com/hagnat/covid
-
-== Brazil medical cases and deaths ==
-</noinclude>
 {| class="wikitable mw-datatable mw-collapsible" style="font-size:80%; text-align: center;"
 |+ style="font-size:125%" |{{nowrap|COVID-19 cases and deaths in Brazil, by state({{navbar|2019–20 coronavirus pandemic data/Brazil medical cases|mini=1|nodiv=1}})}}
 !rowspan=2 colspan=2|
@@ -194,18 +182,7 @@ HEADER;
 | colspan="33" style="text-align: left;" | Notes:<br/>
 {{note|1}} Official data provided by the Brazilian Ministry of Health <ref>{{cite web|url=https://covid.saude.gov.br/|title=Ministério da Saúde|date=April 2020}}</ref>.
 |-
-|}
-<noinclude>
-== References ==
-{{reflist|colwidth=30em}}
-
-== External links ==
-* https://covid.saude.gov.br/ – Ministry of Health Statistics Panel, updated daily
-* https://github.com/hagnat/covid - tool to update this template
-
-{{2019-nCoV|state=expanded}}
-[[Category:2020 coronavirus pandemic in Brazil templates]]
-</noinclude>
+|}<noinclude>{{doc}}</noinclude>
 
 FOOTER;
 	}

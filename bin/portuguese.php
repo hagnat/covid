@@ -4,7 +4,6 @@ define('ROOT_DIR', realpath(__DIR__ . '/..'));
 
 require_once ROOT_DIR . '/vendor/autoload.php';
 
-use App\Application\CovidTableGenerator;
 use App\Infrastructure\CovidCsvReader;
 use App\Infrastructure\MediaWiki\PortugueseTable as Parser;
 
