@@ -8,72 +8,72 @@ use App\Domain\ReportedCases;
 
 class EnglishTable implements ParserInterface
 {
-	public function parse($cases): string
-	{
-		$contents = $this->buildHeader();
+    public function parse($cases): string
+    {
+        $contents = $this->buildHeader();
 
-		foreach ($this->getDateInterval() as $day) {
-			$contents .= $this->buildRow($day, $cases);
-		}
+        foreach ($this->getDateInterval() as $day) {
+            $contents .= $this->buildRow($day, $cases);
+        }
 
-		$contents .= $this->buildFooter();
+        $contents .= $this->buildFooter();
 
-		return $contents;
-	}
+        return $contents;
+    }
 
-	private function getDateInterval(): \DatePeriod
-	{
-		$begin = new \DateTime('2020-02-26');
-		$end = new \DateTime('today');
-		$end = $end->modify('+1 day');
+    private function getDateInterval(): \DatePeriod
+    {
+        $begin = new \DateTime('2020-02-26');
+        $end = new \DateTime('today');
+        $end = $end->modify('+1 day');
 
-		$interval = new \DateInterval('P1D');
-		
-		return new \DatePeriod($begin, $interval ,$end);
-	}
+        $interval = new \DateInterval('P1D');
 
-	private function buildRow(\DateTime $day, ReportedCases $cases): string
-	{
-		if (!$cases->getTotalCumulativeCases($day)) {
-			return '';
-		}
+        return new \DatePeriod($begin, $interval ,$end);
+    }
 
-		// $states = ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'];
-		$states = ['AC', 'AP', 'AM', 'PA', 'RO', 'RR', 'TO', 'AL', 'BA', 'CE', 'MA', 'PB', 'PE', 'PI', 'RN', 'SE', 'DF', 'GO', 'MT', 'MS', 'ES', 'MG', 'RJ', 'SP', 'PR', 'RS', 'SC'];
+    private function buildRow(\DateTime $day, ReportedCases $cases): string
+    {
+        if (!$cases->getTotalCumulativeCases($day)) {
+            return '';
+        }
 
-		$row = "!rowspan=2 style='vertical-align:top'| " . $day->format('M j') . "\n! Cases\n";
+        // $states = ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'];
+        $states = ['AC', 'AP', 'AM', 'PA', 'RO', 'RR', 'TO', 'AL', 'BA', 'CE', 'MA', 'PB', 'PE', 'PI', 'RN', 'SE', 'DF', 'GO', 'MT', 'MS', 'ES', 'MG', 'RJ', 'SP', 'PR', 'RS', 'SC'];
 
-		foreach ($states as $key => $state) {
-			$row .= !$key ? '| ' : '|| ';
+        $row = "!rowspan=2 style='vertical-align:top'| " . $day->format('M j') . "\n! Cases\n";
 
-			$reportedCase = $cases->getReportedCase($day, $state);
-			$row .= ($reportedCase && $reportedCase->cumulativeCases ? $reportedCase->cumulativeCases : '') . ' ';
-		}
+        foreach ($states as $key => $state) {
+            $row .= !$key ? '| ' : '|| ';
 
-		$row .= "\n";
-		$row .= '!rowspan=2| ' . ($cases->getTotalNewCases($day) ? '+' . $cases->getTotalNewCases($day) : '=') . "\n";
-		$row .= '!rowspan=2| ' . $cases->getTotalCumulativeCases($day) . "\n";
+            $reportedCase = $cases->getReportedCase($day, $state);
+            $row .= ($reportedCase && $reportedCase->cumulativeCases ? $reportedCase->cumulativeCases : '') . ' ';
+        }
 
-		$row .= '|rowspan=2| ' . ($cases->getTotalCumulativeDeaths($day) ? ($cases->getTotalNewDeaths($day) ? '+' . $cases->getTotalNewDeaths($day) : '=') : '')  . "\n";
-		$row .= '|rowspan=2| ' . ($cases->getTotalCumulativeDeaths($day) ?: '') . "\n";
+        $row .= "\n";
+        $row .= '!rowspan=2| ' . ($cases->getTotalNewCases($day) ? '+' . $cases->getTotalNewCases($day) : '=') . "\n";
+        $row .= '!rowspan=2| ' . $cases->getTotalCumulativeCases($day) . "\n";
 
-		$row .= "|-\n! Deaths\n";
+        $row .= '|rowspan=2| ' . ($cases->getTotalCumulativeDeaths($day) ? ($cases->getTotalNewDeaths($day) ? '+' . $cases->getTotalNewDeaths($day) : '=') : '')  . "\n";
+        $row .= '|rowspan=2| ' . ($cases->getTotalCumulativeDeaths($day) ?: '') . "\n";
 
-		foreach ($states as $key => $state) {
-			$row .= !$key ? '| ' : '|| ';
+        $row .= "|-\n! Deaths\n";
 
-			$reportedCase = $cases->getReportedCase($day, $state);
-			$row .= ($reportedCase && $reportedCase->cumulativeDeaths ? $reportedCase->cumulativeDeaths : '') . ' ';
-		}
+        foreach ($states as $key => $state) {
+            $row .= !$key ? '| ' : '|| ';
 
-		$row .= "\n|-\n";
+            $reportedCase = $cases->getReportedCase($day, $state);
+            $row .= ($reportedCase && $reportedCase->cumulativeDeaths ? $reportedCase->cumulativeDeaths : '') . ' ';
+        }
 
-		return $row;		
-	}
+        $row .= "\n|-\n";
 
-	private function buildHeader()
-	{
-		return <<<HEADER
+        return $row;
+    }
+
+    private function buildHeader()
+    {
+        return <<<HEADER
 {| class="wikitable mw-datatable mw-collapsible" style="font-size:80%; text-align: center;"
 |+ style="font-size:125%" |{{nowrap|COVID-19 cases and deaths in Brazil, by state({{navbar|2019–20 coronavirus pandemic data/Brazil medical cases|mini=1|nodiv=1}})}}
 !rowspan=2 colspan=2|
@@ -85,7 +85,7 @@ class EnglishTable implements ParserInterface
 !colspan=2| Cases
 !colspan=2| Deaths
 |-
-! {{flagicon|Acre}} <br/> [[Acre (state)|AC]] 
+! {{flagicon|Acre}} <br/> [[Acre (state)|AC]]
 ! {{flagicon|Amapá}} <br/> [[Amapá|AP]]
 ! {{flagicon|Amazonas}} <br/> [[Amazonas (Brazilian state)|AM]]
 ! {{flagicon|Pará}} <br/> [[Pará|PA]]
@@ -110,7 +110,7 @@ class EnglishTable implements ParserInterface
 
 ! {{flagicon|Espírito Santo}} <br/> [[Espírito Santo|ES]]
 ! {{flagicon|Minas Gerais}} <br/> [[Minas Gerais|MG]]
-! {{flagicon|Rio de Janeiro}} <br/> [[Rio de Janeiro (state)|RJ]] 
+! {{flagicon|Rio de Janeiro}} <br/> [[Rio de Janeiro (state)|RJ]]
 ! {{flagicon|São Paulo}} <br/> [[São Paulo (state)|SP]]
 
 ! {{flagicon|Paraná}} <br/> [[Paraná (state)|PR]]
@@ -124,14 +124,14 @@ class EnglishTable implements ParserInterface
 |-
 
 HEADER;
-	}
+    }
 
-	private function buildFooter()
-	{
-		return <<<FOOTER
+    private function buildFooter()
+    {
+        return <<<FOOTER
 |-
 !rowspan=2 colspan=2|
-! {{flagicon|Acre}} <br/> [[Acre (state)|AC]] 
+! {{flagicon|Acre}} <br/> [[Acre (state)|AC]]
 ! {{flagicon|Amapá}} <br/> [[Amapá|AP]]
 ! {{flagicon|Amazonas}} <br/> [[Amazonas (Brazilian state)|AM]]
 ! {{flagicon|Pará}} <br/> [[Pará|PA]]
@@ -156,7 +156,7 @@ HEADER;
 
 ! {{flagicon|Espírito Santo}} <br/> [[Espírito Santo|ES]]
 ! {{flagicon|Minas Gerais}} <br/> [[Minas Gerais|MG]]
-! {{flagicon|Rio de Janeiro}} <br/> [[Rio de Janeiro (state)|RJ]] 
+! {{flagicon|Rio de Janeiro}} <br/> [[Rio de Janeiro (state)|RJ]]
 ! {{flagicon|São Paulo}} <br/> [[São Paulo (state)|SP]]
 
 ! {{flagicon|Paraná}} <br/> [[Paraná (state)|PR]]
@@ -185,5 +185,5 @@ HEADER;
 |}<noinclude>{{doc}}</noinclude>
 
 FOOTER;
-	}
+    }
 }

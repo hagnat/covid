@@ -25,4 +25,3 @@ $contents = $graphParser->parse($cases);
 file_put_contents(ROOT_DIR . '/var/output/englishGraphs.txt', $contents);
 
 echo "   [english] Graphs generated successfully!\n";
-

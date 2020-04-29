@@ -4,103 +4,103 @@ namespace App\Domain;
 
 class LocalCases
 {
-	private $reportedCases = [];
+    private $reportedCases = [];
 
-	public function add(LocalCase ...$cases)
-	{
-		foreach ($cases as $case) {
-			$this->reportedCases[$case->day->format('Y-m-d')][$case->macroRegion][$case->microRegion][] = $case;
-		}
-	}
+    public function add(LocalCase ...$cases)
+    {
+        foreach ($cases as $case) {
+            $this->reportedCases[$case->day->format('Y-m-d')][$case->macroRegion][$case->microRegion][] = $case;
+        }
+    }
 
-	public function filterByDate(\DateTime $dayFilter): LocalCases
-	{
-		$filteredCases = new LocalCases;
-		
-		foreach ($this->reportedCases as $day => $dayContents) {
-			if ($day === $dayFilter->format('Y-m-d')) {
-				foreach ($dayContents as $macroRegionKey => $macroRegionCases) {
-					foreach ($macroRegionCases as $microRegionKey => $microRegionCases) {
-						$filteredCases->add(...$microRegionCases);
-					}
-				}
+    public function filterByDate(\DateTime $dayFilter): LocalCases
+    {
+        $filteredCases = new LocalCases;
 
-				return $filteredCases;
-			}
-		}
+        foreach ($this->reportedCases as $day => $dayContents) {
+            if ($day === $dayFilter->format('Y-m-d')) {
+                foreach ($dayContents as $macroRegionKey => $macroRegionCases) {
+                    foreach ($macroRegionCases as $microRegionKey => $microRegionCases) {
+                        $filteredCases->add(...$microRegionCases);
+                    }
+                }
 
-		return $filteredCases;
-	}
+                return $filteredCases;
+            }
+        }
 
-	public function filterByMacroRegion(string $macroRegionFilter): LocalCases
-	{
-		$filteredCases = new LocalCases;
-		
-		foreach ($this->reportedCases as $day => $dayContents) {
-			foreach ($dayContents as $macroRegionKey => $macroRegionCases) {
-				if (strtoupper($macroRegionKey) === strtoupper($macroRegionFilter)) {
-					foreach ($macroRegionCases as $microRegionKey => $microRegionCases) {
-						$filteredCases->add(...$microRegionCases);
-					}
+        return $filteredCases;
+    }
 
-					// return to first loop
-					break;
-				}
-			}
-		}
+    public function filterByMacroRegion(string $macroRegionFilter): LocalCases
+    {
+        $filteredCases = new LocalCases;
 
-		return $filteredCases;
-	}
+        foreach ($this->reportedCases as $day => $dayContents) {
+            foreach ($dayContents as $macroRegionKey => $macroRegionCases) {
+                if (strtoupper($macroRegionKey) === strtoupper($macroRegionFilter)) {
+                    foreach ($macroRegionCases as $microRegionKey => $microRegionCases) {
+                        $filteredCases->add(...$microRegionCases);
+                    }
 
-	public function filterByMicroRegion(string $microRegionFilter): LocalCases
-	{
-		$filteredCases = new LocalCases;
-		
-		foreach ($this->reportedCases as $day => $dayContents) {
-			foreach ($dayContents as $macroRegionKey => $macroRegionCases) {
-				foreach ($macroRegionCases as $microRegionKey => $microRegionCases) {
-					if (strtoupper($microRegionKey) === strtoupper($microRegionFilter)) {
-						$filteredCases->add(...$microRegionCases);
+                    // return to first loop
+                    break;
+                }
+            }
+        }
 
-						// return to first loop
-						break 2;
-					}
-				}	
-			}
-		}
+        return $filteredCases;
+    }
 
-		return $filteredCases;
-	}
+    public function filterByMicroRegion(string $microRegionFilter): LocalCases
+    {
+        $filteredCases = new LocalCases;
 
-	public function getTotalConfirmedCases(): int
-	{
-		$confirmedCases = 0;
-		foreach ($this->reportedCases as $day => $dayContents) {
-			foreach ($dayContents as $macroRegionKey => $macroRegionContents) {
-				foreach ($macroRegionContents as $microRegionKey => $microRegionContents) {
-					foreach ($microRegionContents as $case) {
-						$confirmedCases += $case->confirmedCases;
-					}
-				}
-			}
-		}
+        foreach ($this->reportedCases as $day => $dayContents) {
+            foreach ($dayContents as $macroRegionKey => $macroRegionCases) {
+                foreach ($macroRegionCases as $microRegionKey => $microRegionCases) {
+                    if (strtoupper($microRegionKey) === strtoupper($microRegionFilter)) {
+                        $filteredCases->add(...$microRegionCases);
 
-		return $confirmedCases;
-	}
+                        // return to first loop
+                        break 2;
+                    }
+                }
+            }
+        }
 
-	public function getTotalConfirmedDeaths(): int
-	{
-		$confirmedDeaths = 0;
-		foreach ($this->reportedCases as $day => $dayContents) {
-			foreach ($dayContents as $macroRegionKey => $macroRegionContents) {
-				foreach ($macroRegionContents as $microRegionKey => $microRegionContents) {
-					foreach ($microRegionContents as $case) {
-						$confirmedDeaths += $case->confirmedDeaths;
-					}
-				}
-			}
-		}
+        return $filteredCases;
+    }
 
-		return $confirmedDeaths;
-	}
+    public function getTotalConfirmedCases(): int
+    {
+        $confirmedCases = 0;
+        foreach ($this->reportedCases as $day => $dayContents) {
+            foreach ($dayContents as $macroRegionKey => $macroRegionContents) {
+                foreach ($macroRegionContents as $microRegionKey => $microRegionContents) {
+                    foreach ($microRegionContents as $case) {
+                        $confirmedCases += $case->confirmedCases;
+                    }
+                }
+            }
+        }
+
+        return $confirmedCases;
+    }
+
+    public function getTotalConfirmedDeaths(): int
+    {
+        $confirmedDeaths = 0;
+        foreach ($this->reportedCases as $day => $dayContents) {
+            foreach ($dayContents as $macroRegionKey => $macroRegionContents) {
+                foreach ($macroRegionContents as $microRegionKey => $microRegionContents) {
+                    foreach ($microRegionContents as $case) {
+                        $confirmedDeaths += $case->confirmedDeaths;
+                    }
+                }
+            }
+        }
+
+        return $confirmedDeaths;
+    }
 }

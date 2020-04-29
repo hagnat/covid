@@ -6,7 +6,7 @@ $currentFile = ROOT_DIR . '/var/input/current.csv';
 $archiveFile = ROOT_DIR . sprintf("/var/input/%s-brasil-covid-data.csv", date('Y-m-d'));
 
 if (file_exists($currentFile) && date('Y-m-d H', filemtime($currentFile)) == date('Y-m-d H')) {
-	die ("   File was recently updated. No need to download it again.\n");
+    die ("   File was recently updated. No need to download it again.\n");
 }
 
 echo "   Downloading current data...\n";

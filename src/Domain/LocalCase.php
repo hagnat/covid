@@ -4,19 +4,19 @@ namespace App\Domain;
 
 class LocalCase
 {
-	public $day;
+    public $day;
 
-	public $state;
-	
-	public $macroRegion;
+    public $state;
 
-	public $microRegion;
+    public $macroRegion;
 
-	public $city;
-	
-	public $confirmedCases;
+    public $microRegion;
 
-	public $confirmedDeaths;
+    public $city;
 
-	public $population;
+    public $confirmedCases;
+
+    public $confirmedDeaths;
+
+    public $population;
 }

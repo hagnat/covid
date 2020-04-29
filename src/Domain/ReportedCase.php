@@ -4,17 +4,17 @@ namespace App\Domain;
 
 class ReportedCase
 {
-	public $state;
-	
-	public $region;
+    public $state;
 
-	public $day;
-	
-	public $newCases;
+    public $region;
 
-	public $cumulativeCases;
+    public $day;
 
-	public $newDeaths;
+    public $newCases;
 
-	public $cumulativeDeaths;
+    public $cumulativeCases;
+
+    public $newDeaths;
+
+    public $cumulativeDeaths;
 }

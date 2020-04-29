@@ -7,83 +7,83 @@ use App\Domain\LocalCases;
 
 class LocalCasesReader
 {
-	public function __construct(string $cityMapFilename)
-	{
-		$this->readCityMap($cityMapFilename);
-	}
+    public function __construct(string $cityMapFilename)
+    {
+        $this->readCityMap($cityMapFilename);
+    }
 
-	public function read(string $filename): LocalCases
-	{
-		$cases = new LocalCases;
+    public function read(string $filename): LocalCases
+    {
+        $cases = new LocalCases;
 
-		if (!($handle = fopen($filename, "r"))) {
-			die ('Unable to open CSV file');
-		}
+        if (!($handle = fopen($filename, "r"))) {
+            die ('Unable to open CSV file');
+        }
 
-		$headers = null;
-		while (false !== ($data = fgetcsv($handle, null, ","))) {
-			if (null === $headers) {
-				$headers = $data;
-				continue;
-			}
+        $headers = null;
+        while (false !== ($data = fgetcsv($handle, null, ","))) {
+            if (null === $headers) {
+                $headers = $data;
+                continue;
+            }
 
-			$row = array_combine($headers, $data);
+            $row = array_combine($headers, $data);
 
-			$cases->add($this->parseRow($row));
-		}
+            $cases->add($this->parseRow($row));
+        }
 
-		fclose($handle);
+        fclose($handle);
 
-		return $cases;		
-	}
+        return $cases;
+    }
 
-	private function parseRow(array $data): LocalCase
-	{
-		$case = new LocalCase;
+    private function parseRow(array $data): LocalCase
+    {
+        $case = new LocalCase;
 
-		$cityData = $this->findCity($data['city']);	
-		
-		$case->day = \DateTime::createFromFormat('d/m/Y', $data['date']) 
-			?: \DateTime::createFromFormat('Y-m-d', $data['date']);
-		$case->state = $data['state'];
-		$case->macroRegion = $cityData['MacroRegion'];
-		$case->microRegion = $cityData['MicroRegion'];
-		$case->city = $cityData['City'];
-		$case->confirmedCases = $data['confirmed'];
-		$case->confirmedDeaths = $data['deaths'];
-		$case->population = $data['estimated_population_2019'];
+        $cityData = $this->findCity($data['city']);
 
-		return $case;
-	}
+        $case->day = \DateTime::createFromFormat('d/m/Y', $data['date'])
+            ?: \DateTime::createFromFormat('Y-m-d', $data['date']);
+        $case->state = $data['state'];
+        $case->macroRegion = $cityData['MacroRegion'];
+        $case->microRegion = $cityData['MicroRegion'];
+        $case->city = $cityData['City'];
+        $case->confirmedCases = $data['confirmed'];
+        $case->confirmedDeaths = $data['deaths'];
+        $case->population = $data['estimated_population_2019'];
 
-	private function findCity(string $cityName): array
-	{
-		return $this->cityMap[$cityName]
-			?? [
-				'City' => $cityName,
-				'MacroRegion' => null,
-				'MicroRegion' => null,
-			];
-	}
+        return $case;
+    }
 
-	private function readCityMap(string $filename)
-	{
-		if (!($handle = fopen($filename, "r"))) {
-			die ('Unable to open CSV file');
-		}
+    private function findCity(string $cityName): array
+    {
+        return $this->cityMap[$cityName]
+            ?? [
+                'City' => $cityName,
+                'MacroRegion' => null,
+                'MicroRegion' => null,
+            ];
+    }
 
-		$this->cityMap = [];
+    private function readCityMap(string $filename)
+    {
+        if (!($handle = fopen($filename, "r"))) {
+            die ('Unable to open CSV file');
+        }
 
-		$headers = null;
-		while (false !== ($data = fgetcsv($handle, null, ";"))) {
-			if (null === $headers) {
-				$headers = $data;
-				continue;
-			}
+        $this->cityMap = [];
 
-			$cityData = array_combine($headers, $data);
+        $headers = null;
+        while (false !== ($data = fgetcsv($handle, null, ";"))) {
+            if (null === $headers) {
+                $headers = $data;
+                continue;
+            }
 
-			$this->cityMap[$cityData['City']] = $cityData;
-		}
-	}
+            $cityData = array_combine($headers, $data);
+
+            $this->cityMap[$cityData['City']] = $cityData;
+        }
+    }
 }

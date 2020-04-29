@@ -12,15 +12,16 @@ class EnglishGraphs implements ParserInterface
     {
         $contents = $this->buildHeader();
 
-        $contents .= "\n<div style='display: inline-block; width: 800px'>";
+        $contents .= "\n<div style='display: inline-block; width: 800px; vertical-align: top;'>";
         $contents .= "\n" . $this->buildTotalConfirmedCasesGraph($cases);
         $contents .= "\n" . $this->buildNewConfirmedCasesGraph($cases);
         $contents .= "\n<noinclude>";
         $contents .= "\n" . $this->buildTotalConfirmedCasesByRegionGraph($cases);
+        $contents .= "\n" . $this->buildGrowthOfConfirmedCases($cases);
         $contents .= "\n</noinclude>";
         $contents .= "\n</div>";
 
-        $contents .= "\n<div style='display: inline-block; width: 800px'>";
+        $contents .= "\n<div style='display: inline-block; width: 800px; vertical-align: top;'>";
         $contents .= "\n" . $this->buildTotalConfirmedDeathsGraphs($cases);
         $contents .= "\n" . $this->buildNewConfirmedDeathsGraphs($cases);
         $contents .= "\n<noinclude>";
@@ -122,6 +123,49 @@ GRAPH;
 |y5Title=South
 |y5={$southData}
 |yGrid= |xGrid=
+}}
+
+GRAPH;
+    }
+
+    private function buildGrowthOfConfirmedCases(ReportedCases $cases): string
+    {
+        $totalConfirmedCases = $this->listTotalCumulativeCases($cases);
+        $newCases = $this->listTotalNewCases($cases);
+
+        foreach ($newCases as $key => $value) {
+            if (0 === $value) {
+                unset($newCases[$key]);
+                unset($totalConfirmedCases[$key]);
+            }
+        }
+
+        $totalConfirmedCases = implode(', ', $totalConfirmedCases);
+        $newCases = implode(', ', $newCases);
+
+        return <<<GRAPH
+=== Growth of Confirmed Cases ===
+{{Side box
+| position=Left
+| metadata=No
+| above='''Growth of Confirmed Cases'''<br/><small>a rising straight line indicates exponential growth, while a horizontal line indicates linear growth</small>
+| abovestyle=text-align:center
+| text= {{Graph:Chart
+|type=line
+|linewidth=2
+|width=600
+|colors={{Medical cases chart/Bar colors|3}}
+|showValues=
+|xAxisTitle=Total confirmed cases
+|xAxisAngle=-30
+|xScaleType=log
+|x={$totalConfirmedCases}
+|yAxisTitle=New confirmed cases
+|yScaleType=log
+|y={$newCases}
+|yGrid= |xGrid=
+}}
+| below=<small>Source: Brazilian Ministry of Health</small>
 }}
 
 GRAPH;
@@ -236,7 +280,7 @@ TABLE;
             $data[] = $cases->getTotalCumulativeCases($day);
         }
 
-        return $data;        
+        return $data;
     }
 
     private function listTotalNewCases(ReportedCases $cases): array
@@ -247,7 +291,7 @@ TABLE;
             $data[] = $cases->getTotalNewCases($day);
         }
 
-        return $data;        
+        return $data;
     }
 
     private function listTotalCumulativeDeaths(ReportedCases $cases): array
@@ -258,7 +302,7 @@ TABLE;
             $data[] = $cases->getTotalCumulativeDeaths($day);
         }
 
-        return $data;        
+        return $data;
     }
 
     private function listTotalNewDeaths(ReportedCases $cases): array
@@ -269,7 +313,7 @@ TABLE;
             $data[] = $cases->getTotalNewDeaths($day);
         }
 
-        return $data;        
+        return $data;
     }
 
     private function listDates(): array
@@ -278,7 +322,7 @@ TABLE;
 
         foreach ($this->getDateInterval() as $day) {
             $dates[] = $day->format('M j');
-        }        
+        }
 
         return $dates;
     }
@@ -290,7 +334,7 @@ TABLE;
         $end = $end->modify('+1 day');
 
         $interval = new \DateInterval('P1D');
-        
+
         return new \DatePeriod($begin, $interval ,$end);
     }
 
