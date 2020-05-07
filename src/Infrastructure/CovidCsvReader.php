@@ -23,8 +23,13 @@ class CovidCsvReader
             }
 
             $row = array_combine($headers, $data);
+            $case = $this->parseRow($row);
 
-            $reportedCases->add($this->parseRow($row));
+            if (0 == $case->cumulativeCases) {
+                continue;
+            }
+
+            $reportedCases->add($case);
         }
 
         fclose($handle);
@@ -36,7 +41,7 @@ class CovidCsvReader
     {
         $reportedCase = new ReportedCase;
 
-        $reportedCase->day = \DateTime::createFromFormat('d/m/Y', $data['data']) ?: \DateTime::createFromFormat('Y-m-d', $data['data']);
+        $reportedCase->day = \DateTimeImmutable::createFromFormat('!d/m/Y', $data['data']) ?: \DateTimeImmutable::createFromFormat('!Y-m-d', $data['data']);
         $reportedCase->state = $data['estado'];
         $reportedCase->region = $data['regiao'];
         $reportedCase->newCases = $data['casosNovos'];

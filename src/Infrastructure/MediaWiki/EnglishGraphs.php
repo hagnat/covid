@@ -12,6 +12,9 @@ class EnglishGraphs implements ParserInterface
     {
         $contents = $this->buildHeader();
 
+        $contents .= "\n== Statistics ==";
+        $contents .= "\n<section begin=\"Statistics\"/>";
+
         $contents .= "\n<div style='display: inline-block; width: 800px; vertical-align: top;'>";
         $contents .= "\n" . $this->buildTotalConfirmedCasesGraph($cases);
         $contents .= "\n" . $this->buildNewConfirmedCasesGraph($cases);
@@ -26,8 +29,11 @@ class EnglishGraphs implements ParserInterface
         $contents .= "\n" . $this->buildNewConfirmedDeathsGraphs($cases);
         $contents .= "\n<noinclude>";
         $contents .= "\n" . $this->buildTotalConfirmedDeathsByRegionGraph($cases);
+        $contents .= "\n" . $this->buildGrowthOfConfirmedDeaths($cases);
         $contents .= "\n</noinclude>";
         $contents .= "\n</div>";
+
+        $contents .= "\n<section end=\"Statistics\"/>";
 
         $contents .= "\n" . $this->buildHistoricalTable($cases);
 
@@ -38,7 +44,7 @@ class EnglishGraphs implements ParserInterface
 
     private function buildTotalConfirmedCasesGraph(ReportedCases $cases): string
     {
-        $dates = implode(', ', $this->listDates());
+        $dates = implode(', ', $this->listDates($cases));
         $data = implode(', ', $this->listTotalCumulativeCases($cases));
 
         return <<<GRAPH
@@ -64,20 +70,20 @@ GRAPH;
 
     private function buildNewConfirmedCasesGraph(ReportedCases $cases): string
     {
-        $dates = implode(', ', $this->listDates());
+        $dates = implode(', ', $this->listDates($cases));
         $data = implode(', ', $this->listTotalNewCases($cases));
 
         return <<<GRAPH
 === New cases per day ===
 {{Graph:Chart
-| type=rect
-| linewidth=1
-| showSymbols=1
-| width=600
-| colors={{Medical cases chart/Bar colors|3}}
-| showValues=offset:2
-| xAxisTitle=Date
-| xAxisAngle=-60
+|type=rect
+|linewidth=1
+|showSymbols=1
+|width=600
+|colors={{Medical cases chart/Bar colors|3}}
+|showValues=offset:2
+|xAxisTitle=Date
+|xAxisAngle=-60
 |x={$dates}
 |y1Title=New cases
 |yAxisTitle=New cases
@@ -90,7 +96,7 @@ GRAPH;
 
     private function buildTotalConfirmedCasesByRegionGraph(ReportedCases $cases): string
     {
-        $dates = implode(', ', $this->listDates());
+        $dates = implode(', ', $this->listDates($cases));
 
         $northData = implode(', ', $this->listTotalCumulativeCases($cases->filterByRegion('norte')));
         $northeastData = implode(', ', $this->listTotalCumulativeCases($cases->filterByRegion('nordeste')));
@@ -146,26 +152,26 @@ GRAPH;
         return <<<GRAPH
 === Growth of Confirmed Cases ===
 {{Side box
-| position=Left
-| metadata=No
-| above='''Growth of Confirmed Cases'''<br/><small>a rising straight line indicates exponential growth, while a horizontal line indicates linear growth</small>
-| abovestyle=text-align:center
-| text= {{Graph:Chart
-|type=line
-|linewidth=2
-|width=600
-|colors={{Medical cases chart/Bar colors|3}}
-|showValues=
-|xAxisTitle=Total confirmed cases
-|xAxisAngle=-30
-|xScaleType=log
-|x={$totalConfirmedCases}
-|yAxisTitle=New confirmed cases
-|yScaleType=log
-|y={$newCases}
-|yGrid= |xGrid=
-}}
-| below=<small>Source: Brazilian Ministry of Health</small>
+|position=Left
+|metadata=No
+|above='''Growth of Confirmed Cases'''<br/><small>a rising straight line indicates exponential growth, while a horizontal line indicates linear growth</small>
+|abovestyle=text-align:center
+|below=<small>Source: Brazilian Ministry of Health</small>
+|text= {{Graph:Chart
+    |type=line
+    |linewidth=2
+    |width=600
+    |colors={{Medical cases chart/Bar colors|3}}
+    |showValues=
+    |xAxisTitle=Total confirmed cases
+    |xAxisAngle=-30
+    |xScaleType=log
+    |x={$totalConfirmedCases}
+    |yAxisTitle=New confirmed cases
+    |yScaleType=log
+    |y={$newCases}
+    |yGrid= |xGrid=
+    }}
 }}
 
 GRAPH;
@@ -173,7 +179,7 @@ GRAPH;
 
     private function buildTotalConfirmedDeathsGraphs(ReportedCases $cases): string
     {
-        $dates = implode(', ', $this->listDates());
+        $dates = implode(', ', $this->listDates($cases));
         $data = implode(', ', $this->listTotalCumulativeDeaths($cases));
 
         return <<<GRAPH
@@ -199,20 +205,20 @@ GRAPH;
 
     private function buildNewConfirmedDeathsGraphs(ReportedCases $cases): string
     {
-        $dates = implode(', ', $this->listDates());
+        $dates = implode(', ', $this->listDates($cases));
         $data = implode(', ', $this->listTotalNewDeaths($cases));
 
         return <<<GRAPH
 === New deaths per day ===
 {{Graph:Chart
-| type=rect
-| linewidth=1
-| showSymbols=1
-| width=600
-| colors={{Medical cases chart/Bar colors|1}}
-| showValues=offset:2
-| xAxisTitle=Date
-| xAxisAngle=-60
+|type=rect
+|linewidth=1
+|showSymbols=1
+|width=600
+|colors={{Medical cases chart/Bar colors|1}}
+|showValues=offset:2
+|xAxisTitle=Date
+|xAxisAngle=-60
 |x={$dates}
 |y1Title=New deaths
 |yAxisTitle=New deaths
@@ -225,7 +231,7 @@ GRAPH;
 
     private function buildTotalConfirmedDeathsByRegionGraph(ReportedCases $cases): string
     {
-        $dates = implode(', ', $this->listDates());
+        $dates = implode(', ', $this->listDates($cases));
 
         $northData = implode(', ', $this->listTotalCumulativeDeaths($cases->filterByRegion('norte')));
         $northeastData = implode(', ', $this->listTotalCumulativeDeaths($cases->filterByRegion('nordeste')));
@@ -263,6 +269,50 @@ GRAPH;
 GRAPH;
     }
 
+    private function buildGrowthOfConfirmedDeaths(ReportedCases $cases): string
+    {
+        $totalConfirmedDeaths = $this->listTotalCumulativeDeaths($cases);
+        $newDeaths = $this->listTotalNewDeaths($cases);
+
+        foreach ($newDeaths as $key => $value) {
+            if (0 === $value) {
+                unset($newDeaths[$key]);
+                unset($totalConfirmedDeaths[$key]);
+            }
+        }
+
+        $totalConfirmedDeaths = implode(', ', $totalConfirmedDeaths);
+        $newDeaths = implode(', ', $newDeaths);
+
+        return <<<GRAPH
+=== Growth of Confirmed Deaths ===
+{{Side box
+|position=Left
+|metadata=No
+|above='''Growth of Confirmed Deaths'''<br/><small>a rising straight line indicates exponential growth, while a horizontal line indicates linear growth</small>
+|abovestyle=text-align:center
+|below=<small>Source: Brazilian Ministry of Health</small>
+|text= {{Graph:Chart
+    |type=line
+    |linewidth=2
+    |width=600
+    |colors={{Medical cases chart/Bar colors|1}}
+    |showValues=
+    |xAxisTitle=Total confirmed deaths
+    |xAxisAngle=-30
+    |xScaleType=log
+    |x={$totalConfirmedDeaths}
+    |yAxisTitle=New confirmed deaths
+    |yScaleType=log
+    |y={$newDeaths}
+    |yGrid= |xGrid=
+    }}
+}}
+
+GRAPH;
+    }
+
+
     private function buildHistoricalTable(ReportedCases $cases): string
     {
         return <<<TABLE
@@ -272,78 +322,75 @@ GRAPH;
 TABLE;
     }
 
-    private function listTotalCumulativeCases(ReportedCases $cases): array
+    private function listTotalCumulativeCases(ReportedCases $reportedCases): array
     {
         $data = [];
 
-        foreach ($this->getDateInterval() as $day) {
-            $data[] = $cases->getTotalCumulativeCases($day);
+        foreach ($this->getDateRange($reportedCases) as $day) {
+            $data[] = $reportedCases->filterByDate($day)->getTotalCumulativeCases();
         }
 
         return $data;
     }
 
-    private function listTotalNewCases(ReportedCases $cases): array
+    private function listTotalNewCases(ReportedCases $reportedCases): array
     {
         $data = [];
 
-        foreach ($this->getDateInterval() as $day) {
-            $data[] = $cases->getTotalNewCases($day);
+        foreach ($this->getDateRange($reportedCases) as $day) {
+            $data[] = $reportedCases->filterByDate($day)->getTotalNewCases();
         }
 
         return $data;
     }
 
-    private function listTotalCumulativeDeaths(ReportedCases $cases): array
+    private function listTotalCumulativeDeaths(ReportedCases $reportedCases): array
     {
         $data = [];
 
-        foreach ($this->getDateInterval() as $day) {
-            $data[] = $cases->getTotalCumulativeDeaths($day);
+        foreach ($this->getDateRange($reportedCases) as $day) {
+            $data[] = $reportedCases->filterByDate($day)->getTotalCumulativeDeaths();
         }
 
         return $data;
     }
 
-    private function listTotalNewDeaths(ReportedCases $cases): array
+    private function listTotalNewDeaths(ReportedCases $reportedCases): array
     {
         $data = [];
 
-        foreach ($this->getDateInterval() as $day) {
-            $data[] = $cases->getTotalNewDeaths($day);
+        foreach ($this->getDateRange($reportedCases) as $day) {
+            $data[] = $reportedCases->filterByDate($day)->getTotalNewDeaths();
         }
 
         return $data;
     }
 
-    private function listDates(): array
+    private function listDates(ReportedCases $reportedCases): array
     {
-        $dates = [];
-
-        foreach ($this->getDateInterval() as $day) {
-            $dates[] = $day->format('M j');
-        }
-
-        return $dates;
+        return array_map(function (\DateTimeInterface $day) {
+            return $day->format('M j');
+        }, $this->getDateRange($reportedCases));
     }
 
-    private function getDateInterval(): \DatePeriod
+    private function getDateRange(ReportedCases $reportedCases): array
     {
         $begin = new \DateTime('2020-02-26');
-        $end = new \DateTime('today');
-        $end = $end->modify('+1 day');
-
         $interval = new \DateInterval('P1D');
+        $end = $reportedCases->getLastReportedDate()->modify('+1 day');
 
-        return new \DatePeriod($begin, $interval ,$end);
+        $period = new \DatePeriod($begin, $interval, $end);
+
+        $dates = [];
+        foreach ($period as $dates[]);
+
+        return $dates;
     }
 
     private function buildHeader(): string
     {
         return <<<HEADER
-== Statistics ==
-<!-- THIS IS AN AUTO GENERATED SECTION -->
-</noinclude>
+{{main|COVID-19_pandemic_in_Brazil}}
 
 HEADER;
     }
@@ -351,7 +398,14 @@ HEADER;
     private function buildFooter(): string
     {
         return <<<FOOTER
-<!-- END OF AUTO GENERATED SECTION -->
+== References ==
+{{reflist|colwidth=30em}}
+
+== External links ==
+* https://covid.saude.gov.br/ – Ministry of Health Statistics Panel, updated daily
+
+{{2019-nCoV|state=expanded}}
+[[Category:2020_coronavirus_pandemic_in_Brazil|Statistics]]
 
 FOOTER;
     }

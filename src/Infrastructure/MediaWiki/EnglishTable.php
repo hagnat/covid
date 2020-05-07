@@ -8,65 +8,64 @@ use App\Domain\ReportedCases;
 
 class EnglishTable implements ParserInterface
 {
-    public function parse($cases): string
+    public function parse($reportedCases): string
     {
         $contents = $this->buildHeader();
 
-        foreach ($this->getDateInterval() as $day) {
-            $contents .= $this->buildRow($day, $cases);
+        foreach ($reportedCases->groupByDate() as $day => $cases) {
+            $contents .= $this->buildRow($cases, new \DateTimeImmutable($day));
         }
 
-        $contents .= $this->buildFooter();
+        $contents .= "\n" . $this->buildFooter();
 
         return $contents;
     }
 
-    private function getDateInterval(): \DatePeriod
+    private function buildRow(ReportedCases $cases, \DateTimeInterface $day): string
     {
-        $begin = new \DateTime('2020-02-26');
-        $end = new \DateTime('today');
-        $end = $end->modify('+1 day');
-
-        $interval = new \DateInterval('P1D');
-
-        return new \DatePeriod($begin, $interval ,$end);
-    }
-
-    private function buildRow(\DateTime $day, ReportedCases $cases): string
-    {
-        if (!$cases->getTotalCumulativeCases($day)) {
+        if (0 == $cases->getTotalCumulativeCases()) {
             return '';
         }
 
         // $states = ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'];
         $states = ['AC', 'AP', 'AM', 'PA', 'RO', 'RR', 'TO', 'AL', 'BA', 'CE', 'MA', 'PB', 'PE', 'PI', 'RN', 'SE', 'DF', 'GO', 'MT', 'MS', 'ES', 'MG', 'RJ', 'SP', 'PR', 'RS', 'SC'];
 
-        $row = "!rowspan=2 style='vertical-align:top'| " . $day->format('M j') . "\n! Cases\n";
+        $row = "\n|-";
+        $row .= "\n!rowspan=2 style='vertical-align:top'| " . $day->format('M j');
+        $row .= "\n! Cases";
+        $row .= "\n| ";
 
+        $data = [];
         foreach ($states as $key => $state) {
-            $row .= !$key ? '| ' : '|| ';
-
-            $reportedCase = $cases->getReportedCase($day, $state);
-            $row .= ($reportedCase && $reportedCase->cumulativeCases ? $reportedCase->cumulativeCases : '') . ' ';
+            $filteredCases = $cases->filterByState($state);
+            $data[] = $filteredCases->getTotalCumulativeCases() ?: '';
         }
+        $data = implode(' || ', $data);
+        $data = preg_replace('/  /', ' ', $data);
 
-        $row .= "\n";
-        $row .= '!rowspan=2| ' . ($cases->getTotalNewCases($day) ? '+' . $cases->getTotalNewCases($day) : '=') . "\n";
-        $row .= '!rowspan=2| ' . $cases->getTotalCumulativeCases($day) . "\n";
+        $row .= $data;
 
-        $row .= '|rowspan=2| ' . ($cases->getTotalCumulativeDeaths($day) ? ($cases->getTotalNewDeaths($day) ? '+' . $cases->getTotalNewDeaths($day) : '=') : '')  . "\n";
-        $row .= '|rowspan=2| ' . ($cases->getTotalCumulativeDeaths($day) ?: '') . "\n";
+        $row .= "\n!rowspan=2| " . ($cases->getTotalNewCases() ? '+' . $cases->getTotalNewCases() : '=');
+        $row .= "\n!rowspan=2| " . $cases->getTotalCumulativeCases();
 
-        $row .= "|-\n! Deaths\n";
+        $row .= "\n|rowspan=2| " . ($cases->getTotalCumulativeDeaths()
+            ? ($cases->getTotalNewDeaths() ? '+' . $cases->getTotalNewDeaths() : '=')
+            : '');
+        $row .= "\n|rowspan=2| " . ($cases->getTotalCumulativeDeaths() ?: '');
 
+        $row .= "\n|-";
+        $row .= "\n! Deaths";
+        $row .= "\n| ";
+
+        $data = [];
         foreach ($states as $key => $state) {
-            $row .= !$key ? '| ' : '|| ';
-
-            $reportedCase = $cases->getReportedCase($day, $state);
-            $row .= ($reportedCase && $reportedCase->cumulativeDeaths ? $reportedCase->cumulativeDeaths : '') . ' ';
+            $filteredCases = $cases->filterByState($state);
+            $data[] = $filteredCases->getTotalCumulativeDeaths() ?: '';
         }
+        $data = implode(' || ', $data);
+        $data = preg_replace('/  /', ' ', $data);
 
-        $row .= "\n|-\n";
+        $row .= $data;
 
         return $row;
     }
@@ -75,7 +74,7 @@ class EnglishTable implements ParserInterface
     {
         return <<<HEADER
 {| class="wikitable mw-datatable mw-collapsible" style="font-size:80%; text-align: center;"
-|+ style="font-size:125%" |{{nowrap|COVID-19 cases and deaths in Brazil, by state({{navbar|2019–20 coronavirus pandemic data/Brazil medical cases|mini=1|nodiv=1}})}}
+|+ style="font-size:125%" |{{nowrap|COVID-19 cases and deaths in Brazil, by state({{navbar|COVID-19 pandemic data/Brazil medical cases|mini=1|nodiv=1}})}}
 !rowspan=2 colspan=2|
 !colspan=7| [[North_Region,_Brazil|North]]
 !colspan=9| [[Northeast_Region,_Brazil|Northeast]]
@@ -121,14 +120,13 @@ class EnglishTable implements ParserInterface
 ! Total
 ! New
 ! Total
-|-
-
 HEADER;
     }
 
     private function buildFooter()
     {
         return <<<FOOTER
+|-
 |-
 !rowspan=2 colspan=2|
 ! {{flagicon|Acre}} <br/> [[Acre (state)|AC]]
@@ -183,7 +181,6 @@ HEADER;
 {{note|1}} Official data provided by the Brazilian Ministry of Health <ref>{{cite web|url=https://covid.saude.gov.br/|title=Ministério da Saúde|date=April 2020}}</ref>.
 |-
 |}<noinclude>{{doc}}</noinclude>
-
 FOOTER;
     }
 }

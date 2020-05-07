@@ -6,67 +6,113 @@ class ReportedCases
 {
     private $reportedCases = [];
 
+    public function __construct(ReportedCase ...$cases)
+    {
+        foreach ($cases as $case) {
+            $this->add($case);
+        }
+    }
+
     public function add(ReportedCase $case)
     {
         if (empty($this->reportedCases[$case->day->format('Y-m-d')])) {
-            $this->reportedCases[$case->day->format('Y-m-d')] = [
-                'data' => [],
-                '_metadata' => [
-                    'newCases' => 0,
-                    'cumulativeCases' => 0,
-                    'newDeaths' => 0,
-                    'cumulativeDeaths' => 0,
-                ],
-            ];
+            $this->reportedCases[$case->day->format('Y-m-d')] = [];
+
+            ksort($this->reportedCases);
         }
-
-        $this->reportedCases[$case->day->format('Y-m-d')]['data'][$case->state] = $case;
-
-        $this->reportedCases[$case->day->format('Y-m-d')]['_metadata']['newCases'] += $case->newCases;
-        $this->reportedCases[$case->day->format('Y-m-d')]['_metadata']['cumulativeCases'] += $case->cumulativeCases;
-        $this->reportedCases[$case->day->format('Y-m-d')]['_metadata']['newDeaths'] += $case->newDeaths;
-        $this->reportedCases[$case->day->format('Y-m-d')]['_metadata']['cumulativeDeaths'] += $case->cumulativeDeaths;
+        $this->reportedCases[$case->day->format('Y-m-d')][$case->state] = $case;
     }
 
     public function filterByRegion(string $region): ReportedCases
     {
-        $filteredCases = new ReportedCases;
+        $filteredCases = [];
 
-        foreach ($this->reportedCases as $day => $dayContents) {
-            foreach ($dayContents['data'] as $case) {
+        foreach ($this->reportedCases as $day => $cases) {
+            foreach ($cases as $case) {
                 if (strtoupper($region) === strtoupper($case->region)) {
-                    $filteredCases->add($case);
+                    $filteredCases[] = $case;
                 }
             }
         }
 
-        return $filteredCases;
+        return new ReportedCases(...array_values($filteredCases));
     }
 
-    public function getReportedCase(\DateTime $day, string $state)
+    public function filterByState(string $state): ReportedCases
     {
-        return isset($this->reportedCases[$day->format('Y-m-d')]['data'][$state])
-            ? $this->reportedCases[$day->format('Y-m-d')]['data'][$state]
+        $filteredCases = [];
+
+        foreach ($this->reportedCases as $day => $cases) {
+            if (!empty($cases[$state])) {
+                $filteredCases[] = $cases[$state];
+            }
+        }
+
+        return new ReportedCases(...array_values($filteredCases));
+    }
+
+    public function filterByDate(\DateTimeInterface $date): ReportedCases
+    {
+        $filteredCases = $this->reportedCases[$date->format('Y-m-d')] ?? [];
+
+        return new ReportedCases(...array_values($filteredCases));
+    }
+
+    public function groupByDate(): array
+    {
+        $groups = [];
+
+        foreach ($this->reportedCases as $date => $cases) {
+            $groups[$date] = new ReportedCases(...array_values($cases));
+        }
+
+        return $groups;
+    }
+
+    public function getTotalNewCases(): int
+    {
+        return array_reduce($this->getLastReportedCases(), function (int $carry, ReportedCase $case) {
+            $carry += $case->newCases;
+            return $carry;
+        }, $initial = 0);
+    }
+
+    public function getTotalCumulativeCases(): int
+    {
+        return array_reduce($this->getLastReportedCases(), function (int $carry, ReportedCase $case) {
+            $carry += $case->cumulativeCases;
+            return $carry;
+        }, $initial = 0);
+    }
+
+    public function getTotalNewDeaths(): int
+    {
+        return array_reduce($this->getLastReportedCases(), function (int $carry, ReportedCase $case) {
+            $carry += $case->newDeaths;
+            return $carry;
+        }, $initial = 0);
+    }
+
+    public function getTotalCumulativeDeaths(): int
+    {
+        return array_reduce($this->getLastReportedCases(), function (int $carry, ReportedCase $case) {
+            $carry += $case->cumulativeDeaths;
+            return $carry;
+        }, $initial = 0);
+    }
+
+    public function getLastReportedDate(): ?\DateTimeInterface
+    {
+        $dates = array_keys($this->reportedCases);
+        $lastReportedDate = end($dates);
+
+        return $lastReportedDate
+            ? \DateTimeImmutable::createFromFormat ('!Y-m-d', $lastReportedDate)
             : null;
     }
 
-    public function getTotalNewCases(\DateTime $day): int
+    private function getLastReportedCases(): array
     {
-        return $this->reportedCases[$day->format('Y-m-d')]['_metadata']['newCases'] ?? 0;
-    }
-
-    public function getTotalCumulativeCases(\DateTime $day): int
-    {
-        return $this->reportedCases[$day->format('Y-m-d')]['_metadata']['cumulativeCases'] ?? 0;
-    }
-
-    public function getTotalNewDeaths(\DateTime $day): int
-    {
-        return $this->reportedCases[$day->format('Y-m-d')]['_metadata']['newDeaths'] ?? 0;
-    }
-
-    public function getTotalCumulativeDeaths(\DateTime $day): int
-    {
-        return $this->reportedCases[$day->format('Y-m-d')]['_metadata']['cumulativeDeaths'] ?? 0;
+        return end($this->reportedCases) ?: [];
     }
 }
