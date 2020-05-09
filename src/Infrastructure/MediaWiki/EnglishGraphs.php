@@ -57,7 +57,8 @@ class EnglishGraphs implements ParserInterface
 |colors={{Medical cases chart/Bar colors|3}}
 |showValues=
 |xAxisTitle=Date
-|xAxisAngle=-60
+|xType=date
+|xAxisFormat=%b %e
 |x={$dates}
 |y1Title=Total confirmed cases
 |yAxisTitle=Total confirmed cases
@@ -70,7 +71,7 @@ GRAPH;
 
     private function buildNewConfirmedCasesGraph(ReportedCases $cases): string
     {
-        $dates = implode(', ', $this->listDates($cases));
+        $dates = implode(', ', $this->listDates($cases, 'M j'));
         $data = implode(', ', $this->listTotalNewCases($cases));
 
         return <<<GRAPH
@@ -82,8 +83,8 @@ GRAPH;
 |width=600
 |colors={{Medical cases chart/Bar colors|3}}
 |showValues=offset:2
-|xAxisTitle=Date
 |xAxisAngle=-60
+|xAxisTitle=Date
 |x={$dates}
 |y1Title=New cases
 |yAxisTitle=New cases
@@ -113,9 +114,10 @@ GRAPH;
 |width=600
 |colors=#00FF00, #0000FF, #FFFF00, #FF0000, #00FFFF
 |showValues=
-|xAxisTitle=Date
-|xAxisAngle=-60
 |legend=
+|xAxisTitle=Date
+|xType=date
+|xAxisFormat=%b %e
 |x={$dates}
 |yAxisTitle=Total confirmed cases
 |y1Title=North
@@ -192,7 +194,8 @@ GRAPH;
 |colors={{Medical cases chart/Bar colors|1}}
 |showValues=
 |xAxisTitle=Date
-|xAxisAngle=-60
+|xType=date
+|xAxisFormat=%b %e
 |x={$dates}
 |y1Title=Total confirmed deaths
 |yAxisTitle=Total confirmed deaths
@@ -205,7 +208,7 @@ GRAPH;
 
     private function buildNewConfirmedDeathsGraphs(ReportedCases $cases): string
     {
-        $dates = implode(', ', $this->listDates($cases));
+        $dates = implode(', ', $this->listDates($cases, 'M j'));
         $data = implode(', ', $this->listTotalNewDeaths($cases));
 
         return <<<GRAPH
@@ -217,8 +220,8 @@ GRAPH;
 |width=600
 |colors={{Medical cases chart/Bar colors|1}}
 |showValues=offset:2
-|xAxisTitle=Date
 |xAxisAngle=-60
+|xAxisTitle=Date
 |x={$dates}
 |y1Title=New deaths
 |yAxisTitle=New deaths
@@ -248,9 +251,10 @@ GRAPH;
 |width=600
 |colors=#00FF00, #0000FF, #FFFF00, #FF0000, #00FFFF
 |showValues=
-|xAxisTitle=Date
-|xAxisAngle=-60
 |legend=
+|xAxisTitle=Date
+|xType=date
+|xAxisFormat=%b %e
 |x={$dates}
 |yAxisTitle=Total confirmed deaths
 |y1Title=North
@@ -366,10 +370,10 @@ TABLE;
         return $data;
     }
 
-    private function listDates(ReportedCases $reportedCases): array
+    private function listDates(ReportedCases $reportedCases, string $format = 'Y-m-d'): array
     {
-        return array_map(function (\DateTimeInterface $day) {
-            return $day->format('M j');
+        return array_map(function (\DateTimeInterface $day) use ($format) {
+            return $day->format($format);
         }, $this->getDateRange($reportedCases));
     }
 
@@ -390,7 +394,7 @@ TABLE;
     private function buildHeader(): string
     {
         return <<<HEADER
-{{main|COVID-19_pandemic_in_Brazil}}
+{{main|COVID-19 pandemic in Brazil}}
 
 HEADER;
     }
