@@ -6,6 +6,7 @@ This is a simple table generator for the COVID-19 Brazil medical cases historica
 This code requires:
 
 * make
+* Composer
 * PHP 7.1 or above
   * php-curl
 
