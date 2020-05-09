@@ -37,7 +37,7 @@ class EnglishGraphs implements ParserInterface
 
     private function buildTotalConfirmedCasesGraph(ReportedCases $cases): string
     {
-        $dates = implode(', ', $this->listDates());
+        $dates = implode(', ', $this->listFullDates());
         $data = implode(', ', $this->listTotalCumulativeCases($cases));
 
         return <<<GRAPH
@@ -50,7 +50,8 @@ class EnglishGraphs implements ParserInterface
 |colors={{Medical cases chart/Bar colors|3}}
 |showValues=
 |xAxisTitle=Date
-|xAxisAngle=-60
+|xType=date
+|xAxisFormat=%b %e
 |x={$dates}
 |y1Title=Total confirmed cases
 |yAxisTitle=Total confirmed cases
@@ -89,7 +90,7 @@ GRAPH;
 
     private function buildTotalConfirmedCasesByRegionGraph(ReportedCases $cases): string
     {
-        $dates = implode(', ', $this->listDates());
+        $dates = implode(', ', $this->listFullDates());
 
         $northData = implode(', ', $this->listTotalCumulativeCases($cases->filterByRegion('norte')));
         $northeastData = implode(', ', $this->listTotalCumulativeCases($cases->filterByRegion('nordeste')));
@@ -107,7 +108,8 @@ GRAPH;
 |colors=#00FF00, #0000FF, #FFFF00, #FF0000, #00FFFF
 |showValues=
 |xAxisTitle=Date
-|xAxisAngle=-60
+|xType=date
+|xAxisFormat=%b %e
 |legend=
 |x={$dates}
 |yAxisTitle=Total confirmed cases
@@ -129,7 +131,7 @@ GRAPH;
 
     private function buildTotalConfirmedDeathsGraphs(ReportedCases $cases): string
     {
-        $dates = implode(', ', $this->listDates());
+        $dates = implode(', ', $this->listFullDates());
         $data = implode(', ', $this->listTotalCumulativeDeaths($cases));
 
         return <<<GRAPH
@@ -142,7 +144,8 @@ GRAPH;
 |colors={{Medical cases chart/Bar colors|1}}
 |showValues=
 |xAxisTitle=Date
-|xAxisAngle=-60
+|xType=date
+|xAxisFormat=%b %e
 |x={$dates}
 |y1Title=Total confirmed deaths
 |yAxisTitle=Total confirmed deaths
@@ -181,7 +184,7 @@ GRAPH;
 
     private function buildTotalConfirmedDeathsByRegionGraph(ReportedCases $cases): string
     {
-        $dates = implode(', ', $this->listDates());
+        $dates = implode(', ', $this->listFullDates());
 
         $northData = implode(', ', $this->listTotalCumulativeDeaths($cases->filterByRegion('norte')));
         $northeastData = implode(', ', $this->listTotalCumulativeDeaths($cases->filterByRegion('nordeste')));
@@ -199,7 +202,8 @@ GRAPH;
 |colors=#00FF00, #0000FF, #FFFF00, #FF0000, #00FFFF
 |showValues=
 |xAxisTitle=Date
-|xAxisAngle=-60
+|xType=date
+|xAxisFormat=%b %e
 |legend=
 |x={$dates}
 |yAxisTitle=Total confirmed deaths
@@ -279,6 +283,16 @@ TABLE;
         foreach ($this->getDateInterval() as $day) {
             $dates[] = $day->format('M j');
         }        
+
+        return $dates;
+    }
+
+    private function listFullDates(): array{
+        $dates = [];
+
+        foreach($this->getDateInterval() as $day){
+            $dates[] = $day->format('Y/m/d');
+        }
 
         return $dates;
     }
