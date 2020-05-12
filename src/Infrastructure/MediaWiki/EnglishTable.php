@@ -12,8 +12,14 @@ class EnglishTable implements ParserInterface
     {
         $contents = $this->buildHeader();
 
-        foreach ($reportedCases->groupByDate() as $day => $cases) {
-            $contents .= $this->buildRow($cases, new \DateTimeImmutable($day));
+        foreach ($this->getDateRange($reportedCases) as $date) {
+            $previousDate = $date->sub(new \DateInterval('P1D'));
+
+            $contents .= $this->buildRow(
+                $reportedCases->filterByDate($date),
+                $reportedCases->filterByDate($previousDate),
+                $date
+            );
         }
 
         $contents .= "\n" . $this->buildFooter();
@@ -21,7 +27,7 @@ class EnglishTable implements ParserInterface
         return $contents;
     }
 
-    private function buildRow(ReportedCases $cases, \DateTimeInterface $day): string
+    private function buildRow(ReportedCases $cases, ReportedCases $previousDayCases, \DateTimeInterface $day): string
     {
         if (0 == $cases->getTotalCumulativeCases()) {
             return '';
@@ -37,19 +43,32 @@ class EnglishTable implements ParserInterface
 
         $data = [];
         foreach ($states as $key => $state) {
-            $filteredCases = $cases->filterByState($state);
-            $data[] = $filteredCases->getTotalCumulativeCases() ?: '';
+            $casesFilteredByState = $cases->filterByState($state);
+            $yesterdayCasesFilteredByState = $previousDayCases->filterByState($state);
+
+            $totalNewCasesByState = $casesFilteredByState->getTotalCumulativeCases() - $yesterdayCasesFilteredByState->getTotalCumulativeCases();
+
+            // $data[] = $filteredCases->getTotalCumulativeCases() ?: '';
+            $data[] = $casesFilteredByState->getTotalCumulativeCases()
+                ? sprintf('{{#ifeq: {{{show|total}}} | new | %s | %s }}',
+                    $totalNewCasesByState ?: '',
+                    $casesFilteredByState->getTotalCumulativeCases() ?: ''
+                )
+                : '';
         }
         $data = implode(' || ', $data);
         $data = preg_replace('/  /', ' ', $data);
 
         $row .= $data;
 
-        $row .= "\n!rowspan=2| " . ($cases->getTotalNewCases() ? '+' . $cases->getTotalNewCases() : '=');
-        $row .= "\n!rowspan=2| " . $cases->getTotalCumulativeCases();
+        $totalNewCases = $cases->getTotalCumulativeCases() - $previousDayCases->getTotalCumulativeCases();
+        $totalNewDeaths = $cases->getTotalCumulativeDeaths() - $previousDayCases->getTotalCumulativeDeaths();
 
-        $row .= "\n|rowspan=2| " . ($cases->getTotalCumulativeDeaths()
-            ? ($cases->getTotalNewDeaths() ? '+' . $cases->getTotalNewDeaths() : '=')
+        $row .= "\n!rowspan=2| " . ($totalNewCases > 0 ? '+' . ($totalNewCases) : '=');
+        $row .= "\n!rowspan=2| " . ($cases->getTotalCumulativeCases());
+
+        $row .= "\n|rowspan=2| " . ($totalNewDeaths
+            ? ($totalNewDeaths ? '+' . ($totalNewDeaths) : '=')
             : '');
         $row .= "\n|rowspan=2| " . ($cases->getTotalCumulativeDeaths() ?: '');
 
@@ -59,8 +78,18 @@ class EnglishTable implements ParserInterface
 
         $data = [];
         foreach ($states as $key => $state) {
-            $filteredCases = $cases->filterByState($state);
-            $data[] = $filteredCases->getTotalCumulativeDeaths() ?: '';
+            $casesFilteredByState = $cases->filterByState($state);
+            $yesterdayCasesFilteredByState = $previousDayCases->filterByState($state);
+
+            $totalNewDeathsByState = $casesFilteredByState->getTotalCumulativeDeaths() - $yesterdayCasesFilteredByState->getTotalCumulativeDeaths();
+
+            // $data[] = $filteredCases->getTotalCumulativeDeaths() ?: '';
+            $data[] = $casesFilteredByState->getTotalCumulativeDeaths()
+                ? sprintf('{{#ifeq: {{{show|total}}} | new | %s | %s }}',
+                    $totalNewDeathsByState ?: '',
+                    $casesFilteredByState->getTotalCumulativeDeaths() ?: ''
+                )
+                : '';
         }
         $data = implode(' || ', $data);
         $data = preg_replace('/  /', ' ', $data);
@@ -178,9 +207,24 @@ HEADER;
 | colspan="33" |
 |-
 | colspan="33" style="text-align: left;" | Notes:<br/>
-{{note|1}} Official data provided by the Brazilian Ministry of Health <ref>{{cite web|url=https://covid.saude.gov.br/|title=Ministério da Saúde|date=April 2020}}</ref>.
+{{note|1}} Official data provided by the Brazilian Ministry of Health<ref name=brazil>{{cite web|url=https://covid.saude.gov.br/|title=Ministério da Saúde|date=April 2020}}</ref>
 |-
 |}<noinclude>{{doc}}</noinclude>
 FOOTER;
+    }
+
+    private function getDateRange(ReportedCases $cases): array
+    {
+        $begin = new \DateTimeImmutable('2020-02-26');
+        $interval = new \DateInterval('P1D');
+        $end = $cases->getLastReportedDate();
+        $end = $end->add(new \DateInterval('P1D'));
+
+        $period = new \DatePeriod($begin, $interval, $end);
+
+        $dates = [];
+        foreach ($period as $dates[]);
+
+        return $dates;
     }
 }

@@ -35,7 +35,10 @@ switch (strtolower($language)) {
 
 echo "   extracting data from CSV file...\n";
 $covidCsvReader = new CovidCsvReader();
-$cases = $covidCsvReader->read(ROOT_DIR . '/var/input/current.csv');
+$archivedCases = $covidCsvReader->read(ROOT_DIR . '/var/input/2020-05-10-brasil-covid-data.csv', ';');
+$currentCases = $covidCsvReader->read(ROOT_DIR . '/var/input/current.csv', ',');
+
+$cases = $currentCases->merge($archivedCases);
 
 $outputDir = ROOT_DIR . "/var/output/wikipedia-{$language}";
 @mkdir($outputDir);

@@ -8,6 +8,8 @@ use App\Domain\ReportedCases;
 
 class EnglishGraphs implements ParserInterface
 {
+    private const CASES_THRESHOLD = 100;
+
     public function parse($cases): string
     {
         $contents = $this->buildHeader();
@@ -152,11 +154,11 @@ GRAPH;
         $newCases = implode(', ', $newCases);
 
         return <<<GRAPH
-=== Growth of Confirmed Cases ===
+=== Growth of confirmed cases ===
 {{Side box
 |position=Left
 |metadata=No
-|above='''Growth of Confirmed Cases'''<br/><small>a rising straight line indicates exponential growth, while a horizontal line indicates linear growth</small>
+|above='''Growth of confirmed cases'''<br/><small>a rising straight line indicates exponential growth, while a horizontal line indicates linear growth</small>
 |abovestyle=text-align:center
 |below=<small>Source: Brazilian Ministry of Health</small>
 |text= {{Graph:Chart
@@ -289,11 +291,11 @@ GRAPH;
         $newDeaths = implode(', ', $newDeaths);
 
         return <<<GRAPH
-=== Growth of Confirmed Deaths ===
+=== Growth of confirmed deaths ===
 {{Side box
 |position=Left
 |metadata=No
-|above='''Growth of Confirmed Deaths'''<br/><small>a rising straight line indicates exponential growth, while a horizontal line indicates linear growth</small>
+|above='''Growth of confirmed deaths'''<br/><small>a rising straight line indicates exponential growth, while a horizontal line indicates linear growth</small>
 |abovestyle=text-align:center
 |below=<small>Source: Brazilian Ministry of Health</small>
 |text= {{Graph:Chart
@@ -342,7 +344,12 @@ TABLE;
         $data = [];
 
         foreach ($this->getDateRange($reportedCases) as $day) {
-            $data[] = $reportedCases->filterByDate($day)->getTotalNewCases();
+            $yesterday = $day->sub(new \DateInterval('P1D'));
+
+            $totalNewCases = $reportedCases->filterByDate($day)->getTotalCumulativeCases();
+            $totalNewCases -= $reportedCases->filterByDate($yesterday)->getTotalCumulativeCases();
+
+            $data[] = $totalNewCases;
         }
 
         return $data;
@@ -364,7 +371,12 @@ TABLE;
         $data = [];
 
         foreach ($this->getDateRange($reportedCases) as $day) {
-            $data[] = $reportedCases->filterByDate($day)->getTotalNewDeaths();
+            $yesterday = $day->sub(new \DateInterval('P1D'));
+
+            $totalNewDeaths = $reportedCases->filterByDate($day)->getTotalCumulativeDeaths();
+            $totalNewDeaths -= $reportedCases->filterByDate($yesterday)->getTotalCumulativeDeaths();
+
+            $data[] = $totalNewDeaths;
         }
 
         return $data;
@@ -379,9 +391,10 @@ TABLE;
 
     private function getDateRange(ReportedCases $reportedCases): array
     {
-        $begin = new \DateTime('2020-02-26');
+        $begin = new \DateTimeImmutable('2020-02-26');
         $interval = new \DateInterval('P1D');
-        $end = $reportedCases->getLastReportedDate()->modify('+1 day');
+        $end =  $reportedCases->getLastReportedDate();
+        $end = $end->add(new \DateInterval('P1D'));
 
         $period = new \DatePeriod($begin, $interval, $end);
 
@@ -409,7 +422,7 @@ HEADER;
 * https://covid.saude.gov.br/ – Ministry of Health Statistics Panel, updated daily
 
 {{2019-nCoV|state=expanded}}
-[[Category:2020_coronavirus_pandemic_in_Brazil|Statistics]]
+[[Category:COVID-19 pandemic in Brazil|statistics]]
 
 FOOTER;
     }

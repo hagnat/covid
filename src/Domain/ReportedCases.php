@@ -2,7 +2,7 @@
 
 namespace App\Domain;
 
-class ReportedCases
+class ReportedCases implements \Countable
 {
     private $reportedCases = [];
 
@@ -13,14 +13,46 @@ class ReportedCases
         }
     }
 
-    public function add(ReportedCase $case)
+    public function count(): int
     {
-        if (empty($this->reportedCases[$case->day->format('Y-m-d')])) {
-            $this->reportedCases[$case->day->format('Y-m-d')] = [];
+        return array_reduce($this->reportedCases, function(int $carry, array $cases) {
+            $carry += count($cases);
+            return $carry;
+        }, 0);
+    }
 
-            ksort($this->reportedCases);
+    public function getArrayCopy(): array
+    {
+        return array_reduce($this->reportedCases, function(array $carry, array $cases) {
+            array_push($carry, ...$cases);
+            return $carry;
+        }, []);
+    }
+
+    public function merge(ReportedCases $cases)
+    {
+        $mergedCases = clone $this;
+
+        foreach ($cases->groupByDate() as $day => $casesByDate) {
+            if (0 === count($mergedCases->filterByDate(new \DateTime($day)))) {
+                $contents = $casesByDate->getArrayCopy();
+                $mergedCases->add(...$contents);
+            }
         }
-        $this->reportedCases[$case->day->format('Y-m-d')][$case->state] = $case;
+
+        return $mergedCases;
+    }
+
+    public function add(ReportedCase ...$cases)
+    {
+        foreach ($cases as $case) {
+            if (empty($this->reportedCases[$case->day->format('Y-m-d')])) {
+                $this->reportedCases[$case->day->format('Y-m-d')] = [];
+
+                ksort($this->reportedCases);
+            }
+            $this->reportedCases[$case->day->format('Y-m-d')][] = $case;
+        }
     }
 
     public function filterByRegion(string $region): ReportedCases
@@ -43,8 +75,10 @@ class ReportedCases
         $filteredCases = [];
 
         foreach ($this->reportedCases as $day => $cases) {
-            if (!empty($cases[$state])) {
-                $filteredCases[] = $cases[$state];
+            foreach ($cases as $case) {
+                if (strtoupper($state) === $case->state) {
+                    $filteredCases[] = $case;
+                }
             }
         }
 
