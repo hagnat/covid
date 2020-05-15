@@ -36,7 +36,7 @@ switch (strtolower($language)) {
 echo "   extracting data from CSV file...\n";
 $covidCsvReader = new CovidCsvReader();
 $archivedCases = $covidCsvReader->read(ROOT_DIR . '/var/input/2020-05-10-brasil-covid-data.csv', ';');
-$currentCases = $covidCsvReader->read(ROOT_DIR . '/var/input/current.csv', ',');
+$currentCases = $covidCsvReader->read(ROOT_DIR . '/var/input/current.csv', ';');
 
 $cases = $currentCases->merge($archivedCases);
 

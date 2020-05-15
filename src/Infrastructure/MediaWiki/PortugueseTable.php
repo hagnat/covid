@@ -8,65 +8,93 @@ use App\Domain\ReportedCases;
 
 class PortugueseTable implements ParserInterface
 {
-    public function parse($cases): string
+    public function parse($reportedCases): string
     {
         $contents = $this->buildHeader();
 
-        foreach ($this->getDateInterval() as $day) {
-            $contents .= $this->buildRow($day, $cases);
+        foreach ($this->getDateRange($reportedCases) as $date) {
+            $previousDate = $date->sub(new \DateInterval('P1D'));
+
+            $contents .= $this->buildRow(
+                $reportedCases->filterByDate($date),
+                $reportedCases->filterByDate($previousDate),
+                $date
+            );
         }
 
-        $contents .= $this->buildFooter();
+        $contents .= "\n" . $this->buildFooter();
 
         return $contents;
     }
 
-    private function getDateInterval(): \DatePeriod
+    private function buildRow(ReportedCases $cases, ReportedCases $previousDayCases, \DateTimeInterface $day): string
     {
-        $begin = new \DateTime('2020-02-26');
-        $end = new \DateTime('today');
-        $end = $end->modify('+1 day');
-
-        $interval = new \DateInterval('P1D');
-
-        return new \DatePeriod($begin, $interval ,$end);
-    }
-
-    private function buildRow(\DateTime $day, ReportedCases $cases): string
-    {
-        if (!$cases->getTotalCumulativeCases($day)) {
+        if (0 == $cases->getTotalCumulativeCases()) {
             return '';
         }
 
         // $states = ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'];
         $states = ['AC', 'AP', 'AM', 'PA', 'RO', 'RR', 'TO', 'AL', 'BA', 'CE', 'MA', 'PB', 'PE', 'PI', 'RN', 'SE', 'DF', 'GO', 'MT', 'MS', 'ES', 'MG', 'RJ', 'SP', 'PR', 'RS', 'SC'];
 
-        $row = "\n!rowspan=2 style='vertical-align:top'| " . $day->format('d/m') . "\n! Casos\n";
+        $row = "\n|-";
+        $row .= "\n!rowspan=2 style='vertical-align:top'| " . $day->format('d/m');
+        $row .= "\n! Casos";
+        $row .= "\n| ";
 
+        $data = [];
         foreach ($states as $key => $state) {
-            $row .= !$key ? '| ' : '|| ';
+            $casesFilteredByState = $cases->filterByState($state);
+            // $yesterdayCasesFilteredByState = $previousDayCases->filterByState($state);
 
-            $reportedCase = $cases->getReportedCase($day, $state);
-            $row .= ($reportedCase && $reportedCase->cumulativeCases ? $reportedCase->cumulativeCases : '') . ' ';
+            // $totalNewCasesByState = $casesFilteredByState->getTotalCumulativeCases() - $yesterdayCasesFilteredByState->getTotalCumulativeCases();
+
+            $data[] = $casesFilteredByState->getTotalCumulativeCases() ?: '';
+            // $data[] = $casesFilteredByState->getTotalCumulativeCases()
+            //     ? sprintf('{{#ifeq: {{{show|total}}} | new | %s | %s }}',
+            //         $totalNewCasesByState ?: '',
+            //         $casesFilteredByState->getTotalCumulativeCases() ?: ''
+            //     )
+            //     : '';
         }
+        $data = implode(' || ', $data);
+        $data = preg_replace('/  /', ' ', $data);
 
-        $row .= "\n";
-        $row .= '!rowspan=2| ' . ($cases->getTotalNewCases($day) ? '+' . $cases->getTotalNewCases($day) : '=') . "\n";
-        $row .= '!rowspan=2| ' . $cases->getTotalCumulativeCases($day) . "\n";
+        $row .= $data;
 
-        $row .= '|rowspan=2| ' . ($cases->getTotalCumulativeDeaths($day) ? ($cases->getTotalNewDeaths($day) ? '+' . $cases->getTotalNewDeaths($day) : '=') : '')  . "\n";
-        $row .= '|rowspan=2| ' . ($cases->getTotalCumulativeDeaths($day) ?: '') . "\n";
+        $totalNewCases = $cases->getTotalCumulativeCases() - $previousDayCases->getTotalCumulativeCases();
+        $totalNewDeaths = $cases->getTotalCumulativeDeaths() - $previousDayCases->getTotalCumulativeDeaths();
 
-        $row .= "|-\n! Mortes\n";
+        $row .= "\n!rowspan=2| " . ($totalNewCases > 0 ? '+' . ($totalNewCases) : '=');
+        $row .= "\n!rowspan=2| " . ($cases->getTotalCumulativeCases());
 
+        $row .= "\n|rowspan=2| " . ($totalNewDeaths
+            ? ($totalNewDeaths ? '+' . ($totalNewDeaths) : '=')
+            : '');
+        $row .= "\n|rowspan=2| " . ($cases->getTotalCumulativeDeaths() ?: '');
+
+        $row .= "\n|-";
+        $row .= "\n! Mortes";
+        $row .= "\n| ";
+
+        $data = [];
         foreach ($states as $key => $state) {
-            $row .= !$key ? '| ' : '|| ';
+            $casesFilteredByState = $cases->filterByState($state);
+            // $yesterdayCasesFilteredByState = $previousDayCases->filterByState($state);
 
-            $reportedCase = $cases->getReportedCase($day, $state);
-            $row .= ($reportedCase && $reportedCase->cumulativeDeaths ? $reportedCase->cumulativeDeaths : '') . ' ';
+            // $totalNewDeathsByState = $casesFilteredByState->getTotalCumulativeDeaths() - $yesterdayCasesFilteredByState->getTotalCumulativeDeaths();
+
+            $data[] = $casesFilteredByState->getTotalCumulativeDeaths() ?: '';
+            // $data[] = $casesFilteredByState->getTotalCumulativeDeaths()
+            //     ? sprintf('{{#ifeq: {{{show|total}}} | new | %s | %s }}',
+            //         $totalNewDeathsByState ?: '',
+            //         $casesFilteredByState->getTotalCumulativeDeaths() ?: ''
+            //     )
+            //     : '';
         }
+        $data = implode(' || ', $data);
+        $data = preg_replace('/  /', ' ', $data);
 
-        $row .= "\n|-\n";
+        $row .= $data;
 
         return $row;
     }
@@ -168,9 +196,24 @@ HEADER;
 | colspan="33" |
 |-
 | colspan="33" style="text-align: left;" | Notas:<br/>
-{{nota|1}} Balanço oficial dos casos segundo o Ministério da Saúde. <ref>{{citar web|url=https://covid.saude.gov.br/|titulo=Ministério da Saúde|data=Abril 2020}}</ref>.
+{{nota|1}} Balanço oficial dos casos segundo o Ministério da Saúde.<ref>{{citar web|url=https://covid.saude.gov.br/|titulo=Ministério da Saúde|data=Abril 2020}}</ref>
 |-
 |}<noinclude>{{documentação}}</noinclude>
 FOOTER;
+    }
+
+    private function getDateRange(ReportedCases $cases): array
+    {
+        $begin = new \DateTimeImmutable('2020-02-26');
+        $interval = new \DateInterval('P1D');
+        $end = $cases->getLastReportedDate();
+        $end = $end->add(new \DateInterval('P1D'));
+
+        $period = new \DatePeriod($begin, $interval, $end);
+
+        $dates = [];
+        foreach ($period as $dates[]);
+
+        return $dates;
     }
 }
