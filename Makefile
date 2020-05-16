@@ -16,11 +16,11 @@ download/brasil/rs:
 	@echo '=> downloading Brasil/RS data from BrasilIO'
 	php bin/download-brasilio.php rs
 
-wikipedia/english: download/brasil/minister
+wikipedia/english:
 	@echo '=> generating english wikipedia artiles'
 	php bin/wikipedia.php en
 
-wikipedia/portuguese: download/brasil/minister
+wikipedia/portuguese:
 	@echo '=> generating portuguese wikipedia articles'
 	php bin/wikipedia.php pt
 

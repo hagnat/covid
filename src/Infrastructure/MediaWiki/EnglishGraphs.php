@@ -35,6 +35,10 @@ class EnglishGraphs implements ParserInterface
         $contents .= "\n</noinclude>";
         $contents .= "\n</div>";
 
+        $contents .= "\n<noinclude>";
+        $contents .= "\n" . $this->buildLogChart();
+        $contents .= "\n</noinclude>";
+
         $contents .= "\n<section end=\"Statistics\"/>";
 
         $contents .= "\n" . $this->buildHistoricalTable($cases);
@@ -55,7 +59,7 @@ class EnglishGraphs implements ParserInterface
 |type=line
 |linewidth=2
 |showSymbols=1
-|width=600
+|width=700
 |colors={{Medical cases chart/Bar colors|3}}
 |showValues=
 |xAxisTitle=Date
@@ -82,7 +86,7 @@ GRAPH;
 |type=rect
 |linewidth=1
 |showSymbols=1
-|width=600
+|width=700
 |colors={{Medical cases chart/Bar colors|3}}
 |showValues=offset:2
 |xAxisAngle=-60
@@ -91,7 +95,7 @@ GRAPH;
 |y1Title=New cases
 |yAxisTitle=New cases
 |y1={$data}
-|yGrid= |xGrid=
+|yGrid=
 }}
 
 GRAPH;
@@ -192,7 +196,7 @@ GRAPH;
 |type=line
 |linewidth=2
 |showSymbols=1
-|width=600
+|width=700
 |colors={{Medical cases chart/Bar colors|1}}
 |showValues=
 |xAxisTitle=Date
@@ -219,7 +223,7 @@ GRAPH;
 |type=rect
 |linewidth=1
 |showSymbols=1
-|width=600
+|width=700
 |colors={{Medical cases chart/Bar colors|1}}
 |showValues=offset:2
 |xAxisAngle=-60
@@ -228,7 +232,7 @@ GRAPH;
 |y1Title=New deaths
 |yAxisTitle=New deaths
 |y1={$data}
-|yGrid= |xGrid=
+|yGrid=
 }}
 
 GRAPH;
@@ -318,6 +322,15 @@ GRAPH;
 GRAPH;
     }
 
+    private function buildLogChart(): string
+    {
+        return <<<CHART
+=== Number of cases and deaths, on a logarithmic scale ===
+[[File:CoViD-19 BR.svg|thumb|600px|upright=2|left|Number of cases (blue) and number of deaths (red) on a [[logarithmic scale]].]]
+{{clear}}
+
+CHART;
+    }
 
     private function buildHistoricalTable(ReportedCases $cases): string
     {
