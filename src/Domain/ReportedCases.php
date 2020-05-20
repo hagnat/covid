@@ -135,6 +135,14 @@ class ReportedCases implements \Countable
         }, $initial = 0);
     }
 
+    public function getTotalCumulativeRecoveries(): int
+    {
+        return array_reduce($this->getLastReportedCases(), function (int $carry, ReportedCase $case) {
+            $carry += (int) $case->cumulativeRecoveries;
+            return $carry;
+        }, $initial = 0);
+    }
+
     public function getLastReportedDate(): ?\DateTimeInterface
     {
         $dates = array_keys($this->reportedCases);

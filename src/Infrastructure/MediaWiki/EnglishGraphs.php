@@ -14,7 +14,17 @@ class EnglishGraphs implements ParserInterface
     {
         $contents = $this->buildHeader();
 
-        $contents .= "\n== Statistics ==";
+        $contents .= "\n" . $this->buildStatisticalGraphs($cases);
+        $contents .= "\n" . $this->buildHistoricalTable($cases);
+
+        $contents .= "\n" . $this->buildFooter();
+
+        return $contents;
+    }
+
+    private function buildStatisticalGraphs(ReportedCases $cases): string
+    {
+        $contents = "== Statistics ==";
         $contents .= "\n<section begin=\"Statistics\"/>";
 
         $contents .= "\n<div style='display: inline-block; width: 800px; vertical-align: top;'>";
@@ -40,10 +50,6 @@ class EnglishGraphs implements ParserInterface
         $contents .= "\n</noinclude>";
 
         $contents .= "\n<section end=\"Statistics\"/>";
-
-        $contents .= "\n" . $this->buildHistoricalTable($cases);
-
-        $contents .= "\n" . $this->buildFooter();
 
         return $contents;
     }
@@ -335,8 +341,15 @@ CHART;
     private function buildHistoricalTable(ReportedCases $cases): string
     {
         return <<<TABLE
-=== Confirmed cases and deaths, by state ===
-{{2019–20_coronavirus_pandemic_data/Brazil_medical_cases}}
+== Timeline table, by state ==
+<section begin="Timeline"/>
+=== Total cases and deaths, by state ===
+{{COVID-19 pandemic data/Brazil_medical_cases}}
+
+=== New cases and deaths, by state ===
+{{COVID-19 pandemic data/Brazil medical cases|show=new}}
+
+<section end="Timeline"/>
 
 TABLE;
     }

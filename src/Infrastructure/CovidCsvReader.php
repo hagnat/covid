@@ -7,6 +7,23 @@ use App\Domain\ReportedCases;
 
 class CovidCsvReader
 {
+    private $mode;
+
+    private function __construct(string $mode)
+    {
+        $this->mode = $mode;
+    }
+
+    public static function nationalReader(): self
+    {
+        return new static('national');
+    }
+
+    public static function localReader(): self
+    {
+        return new static('local');
+    }
+
     public function read(string $filename, string $csvSeparator): ReportedCases
     {
         $reportedCases = new ReportedCases;
@@ -24,8 +41,13 @@ class CovidCsvReader
 
             $row = array_combine($headers, $data);
 
-            if (empty($row['estado'] ?? '') || !empty($row['municipio'] ?? '')) {
+            if ('local' === $this->mode && (empty($row['estado'] ?? '') || !empty($row['municipio'] ?? ''))) {
                 // only gets the data from states
+                continue;
+            }
+
+            if ('national' === $this->mode && 'Brasil' !== $row['regiao']) {
+                // only gets the data from country
                 continue;
             }
 
@@ -54,6 +76,8 @@ class CovidCsvReader
         $reportedCase->cumulativeCases = $data['casosAcumulados'] ?? $data['casosAcumulado'];
         // $reportedCase->newDeaths = $data['obitosNovos'];
         $reportedCase->cumulativeDeaths = $data['obitosAcumulados'] ?? $data['obitosAcumulado'];
+
+        $reportedCase->cumulativeRecoveries = $data['Recuperadosnovos'] ?? 0;
 
         return $reportedCase;
     }

@@ -17,4 +17,8 @@ class ReportedCase
     public $newDeaths;
 
     public $cumulativeDeaths;
+
+    public $newRecoveries;
+
+    public $cumulativeRecoveries;
 }

@@ -4,7 +4,9 @@ define('ROOT_DIR', realpath(__DIR__ . '/..'));
 
 require_once ROOT_DIR . '/vendor/autoload.php';
 
+use App\Domain\ReportedCases;
 use App\Infrastructure\CovidCsvReader;
+use App\Infrastructure\MediaWiki\EnglishChart;
 use App\Infrastructure\MediaWiki\EnglishGraphs;
 use App\Infrastructure\MediaWiki\EnglishTable;
 use App\Infrastructure\MediaWiki\PortugueseTable;
@@ -22,11 +24,13 @@ if (!in_array(strtolower($language), $validLanguages)) {
 
 $tableParser = null;
 $graphsParser = null;
+$chartParser = null;
 
 switch (strtolower($language)) {
     case 'en':
-        $tableParser = new EnglishTable();
+        $chartParser = new EnglishChart();
         $graphsParser = new EnglishGraphs();
+        $tableParser = new EnglishTable();
         break;
 
     case 'pt':
@@ -45,34 +49,61 @@ if (!count($files)) {
 
 $filename = end($files)->getPathname();
 
-echo "   extracting data from CSV file...\n";
-$covidCsvReader = new CovidCsvReader();
-$archivedCases = $covidCsvReader->read(ROOT_DIR . '/var/input/2020-05-10-brasil-covid-data.csv', ';');
-$currentCases = $covidCsvReader->read($filename, ';');
+$files = [
+    [ROOT_DIR . '/var/input/2020-05-10-brasil-covid-data.csv', ';'],
+    [$filename, ';'],
+];
 
-$cases = $currentCases->merge($archivedCases);
+echo "   extracting local data from CSV files...\n";
+$localReader = CovidCsvReader::localReader();
+
+$localCases = new ReportedCases;
+foreach ($files as [$file, $separator]) {
+    $cases = $localReader->read($file, $separator);
+    $localCases = $localCases->merge($cases);
+}
+
+echo "   extracting national data from CSV files...\n";
+$nationalReader = CovidCsvReader::nationalReader();
+
+$nationalCases = new ReportedCases;
+foreach ($files as [$file, $separator]) {
+    $cases = $nationalReader->read($file, $separator);
+    $nationalCases = $nationalCases->merge($cases);
+}
 
 $outputDir = ROOT_DIR . "/var/output/wikipedia-{$language}";
 @mkdir($outputDir);
 
-if ($tableParser) {
-    echo "   Parsing table...\n";
-    $contents = $tableParser->parse($cases);
+if ($chartParser) {
+    echo "   Parsing chart...\n";
+    $contents = $chartParser->parse($nationalCases);
 
-    $outputFile = $outputDir . '/table.txt';
+    $outputFile = $outputDir . '/chart.txt';
     file_put_contents($outputFile, $contents);
 
-    echo "   Table parsed!\n";
+    echo "   Chart parsed!\n";
     echo "   Check {$outputFile}\n";
 }
 
 if ($graphsParser) {
     echo "   Parsing graphs...\n";
-    $contents = $graphsParser->parse($cases);
+    $contents = $graphsParser->parse($localCases);
 
     $outputFile = $outputDir . '/graphs.txt';
     file_put_contents($outputFile, $contents);
 
     echo "   Graphs parsed!\n";
+    echo "   Check {$outputFile}\n";
+}
+
+if ($tableParser) {
+    echo "   Parsing table...\n";
+    $contents = $tableParser->parse($localCases);
+
+    $outputFile = $outputDir . '/table.txt';
+    file_put_contents($outputFile, $contents);
+
+    echo "   Table parsed!\n";
     echo "   Check {$outputFile}\n";
 }
