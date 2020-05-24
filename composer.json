@@ -2,6 +2,7 @@
     "name": "hagnat/covid",
     "description": "COVID-19 Table Generator",
     "type": "project",
+    "license": "MIT",
     "authors": [
         { "name": "hagnat", "email": "hagnat@gmail.com" }
     ],
