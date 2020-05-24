@@ -3,7 +3,6 @@
 namespace App\Infrastructure\MediaWiki;
 
 use App\Application\ParserInterface;
-use App\Domain\ReportedCase;
 use App\Domain\ReportedCases;
 
 class EnglishTable implements ParserInterface
@@ -50,7 +49,8 @@ class EnglishTable implements ParserInterface
 
             // $data[] = $filteredCases->getTotalCumulativeCases() ?: '';
             $data[] = $casesFilteredByState->getTotalCumulativeCases()
-                ? sprintf('{{#ifeq: {{{show|total}}} | new | %s | %s }}',
+                ? sprintf(
+                    '{{#ifeq: {{{show|total}}} | new | %s | %s }}',
                     $totalNewCasesByState ?: '',
                     $casesFilteredByState->getTotalCumulativeCases() ?: ''
                 )
@@ -85,7 +85,8 @@ class EnglishTable implements ParserInterface
 
             // $data[] = $filteredCases->getTotalCumulativeDeaths() ?: '';
             $data[] = $casesFilteredByState->getTotalCumulativeDeaths()
-                ? sprintf('{{#ifeq: {{{show|total}}} | new | %s | %s }}',
+                ? sprintf(
+                    '{{#ifeq: {{{show|total}}} | new | %s | %s }}',
                     $totalNewDeathsByState ?: '',
                     $casesFilteredByState->getTotalCumulativeDeaths() ?: ''
                 )
@@ -101,7 +102,7 @@ class EnglishTable implements ParserInterface
 
     private function buildHeader()
     {
-        return <<<HEADER
+        return <<<'HEADER'
 {| class="wikitable mw-datatable mw-collapsible" style="font-size:80%; text-align: center;"
 |+ style="font-size:125%" |{{nowrap|COVID-19 cases and deaths in Brazil, by state({{navbar|COVID-19 pandemic data/Brazil medical cases|mini=1|nodiv=1}})}}
 !rowspan=2 colspan=2|
@@ -154,7 +155,7 @@ HEADER;
 
     private function buildFooter()
     {
-        return <<<FOOTER
+        return <<<'FOOTER'
 |-
 |-
 !rowspan=2 colspan=2|

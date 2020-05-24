@@ -3,18 +3,40 @@
     "description": "COVID-19 Table Generator",
     "type": "project",
     "authors": [
-        {
-            "name": "hagnat",
-            "email": "hagnat@gmail.com"
-        }
+        { "name": "hagnat", "email": "hagnat@gmail.com" }
     ],
     "autoload": {
         "psr-4": {"App\\": "src/"}
-    },    
+    },
     "require": {
+        "phpoffice/phpspreadsheet": "^1.12",
         "symfony/finder": "^5.0"
     },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^2.16",
+        "leaseweb/lint-php": "^0.1.0",
+        "phpstan/phpstan": "^0.12.25",
+        "phpunit/phpunit": "^9.1"
+    },
     "config": {
-        "bin-dir": "bin"
-    }    
+        "bin-dir": "bin",
+        "platform": {
+            "php": "7.1"
+        },
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "scripts": {
+        "required-dirs": [
+            "mkdir -p var/input",
+            "mkdir -p var/output",
+            "mkdir -p var/tmp"
+        ],
+        "post-install-cmd": [
+            "@required-dirs"
+        ],
+        "post-update-cmd": [
+            "@required-dirs"
+        ]
+    }
 }

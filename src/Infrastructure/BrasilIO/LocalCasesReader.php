@@ -14,16 +14,17 @@ class LocalCasesReader
 
     public function read(string $filename): LocalCases
     {
-        $cases = new LocalCases;
+        $cases = new LocalCases();
 
-        if (!($handle = fopen($filename, "r"))) {
-            die ('Unable to open CSV file');
+        if (!($handle = fopen($filename, 'r'))) {
+            die('Unable to open CSV file');
         }
 
         $headers = null;
-        while (false !== ($data = fgetcsv($handle, null, ","))) {
+        while (false !== ($data = fgetcsv($handle, null, ','))) {
             if (null === $headers) {
                 $headers = $data;
+
                 continue;
             }
 
@@ -39,7 +40,7 @@ class LocalCasesReader
 
     private function parseRow(array $data): LocalCase
     {
-        $case = new LocalCase;
+        $case = new LocalCase();
 
         $cityData = $this->findCity($data['city']);
 
@@ -68,16 +69,17 @@ class LocalCasesReader
 
     private function readCityMap(string $filename)
     {
-        if (!($handle = fopen($filename, "r"))) {
-            die ('Unable to open CSV file');
+        if (!($handle = fopen($filename, 'r'))) {
+            die('Unable to open CSV file');
         }
 
         $this->cityMap = [];
 
         $headers = null;
-        while (false !== ($data = fgetcsv($handle, null, ";"))) {
+        while (false !== ($data = fgetcsv($handle, null, ';'))) {
             if (null === $headers) {
                 $headers = $data;
+
                 continue;
             }
 

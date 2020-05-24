@@ -1,0 +1,30 @@
+<?php
+
+$finder = PhpCsFixer\Finder::create()
+    ->in('src')
+    ->in('test');
+
+$rules = [
+    '@PSR2' => true,
+    '@Symfony' => true,
+    '@PhpCsFixer' => true,
+    '@PHP70Migration' => true,
+    'concat_space' => false,
+    'yoda_style' => true,
+    'array_syntax' => [
+        'syntax' => 'short',
+    ],
+    'no_superfluous_phpdoc_tags' => [
+        'allow_mixed' => true,
+    ],
+    'phpdoc_add_missing_param_annotation' => [
+        'only_untyped' => true,
+    ],
+    'multiline_whitespace_before_semicolons' => false,
+    'php_unit_test_class_requires_covers' => false,
+    'php_unit_internal_class' => false,
+];
+
+return PhpCsFixer\Config::create()
+    ->setRules($rules)
+    ->setFinder($finder);

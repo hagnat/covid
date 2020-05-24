@@ -50,7 +50,6 @@ if (!count($files)) {
 $filename = end($files)->getPathname();
 
 $files = [
-    [ROOT_DIR . '/var/input/2020-05-10-brasil-covid-data.csv', ';'],
     [$filename, ';'],
 ];
 
@@ -63,28 +62,28 @@ foreach ($files as [$file, $separator]) {
     $localCases = $localCases->merge($cases);
 }
 
-echo "   extracting national data from CSV files...\n";
-$nationalReader = CovidCsvReader::nationalReader();
+// echo "   extracting national data from CSV files...\n";
+// $nationalReader = CovidCsvReader::nationalReader();
 
-$nationalCases = new ReportedCases;
-foreach ($files as [$file, $separator]) {
-    $cases = $nationalReader->read($file, $separator);
-    $nationalCases = $nationalCases->merge($cases);
-}
+// $nationalCases = new ReportedCases;
+// foreach ($files as [$file, $separator]) {
+//     $cases = $nationalReader->read($file, $separator);
+//     $nationalCases = $nationalCases->merge($cases);
+// }
 
 $outputDir = ROOT_DIR . "/var/output/wikipedia-{$language}";
 @mkdir($outputDir);
 
-if ($chartParser) {
-    echo "   Parsing chart...\n";
-    $contents = $chartParser->parse($nationalCases);
+// if ($chartParser) {
+//     echo "   Parsing chart...\n";
+//     $contents = $chartParser->parse($nationalCases);
 
-    $outputFile = $outputDir . '/chart.txt';
-    file_put_contents($outputFile, $contents);
+//     $outputFile = $outputDir . '/chart.txt';
+//     file_put_contents($outputFile, $contents);
 
-    echo "   Chart parsed!\n";
-    echo "   Check {$outputFile}\n";
-}
+//     echo "   Chart parsed!\n";
+//     echo "   Check {$outputFile}\n";
+// }
 
 if ($graphsParser) {
     echo "   Parsing graphs...\n";

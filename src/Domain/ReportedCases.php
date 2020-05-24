@@ -15,16 +15,18 @@ class ReportedCases implements \Countable
 
     public function count(): int
     {
-        return array_reduce($this->reportedCases, function(int $carry, array $cases) {
+        return array_reduce($this->reportedCases, function (int $carry, array $cases) {
             $carry += count($cases);
+
             return $carry;
         }, 0);
     }
 
     public function getArrayCopy(): array
     {
-        return array_reduce($this->reportedCases, function(array $carry, array $cases) {
+        return array_reduce($this->reportedCases, function (array $carry, array $cases) {
             array_push($carry, ...$cases);
+
             return $carry;
         }, []);
     }
@@ -107,6 +109,7 @@ class ReportedCases implements \Countable
     {
         return array_reduce($this->getLastReportedCases(), function (int $carry, ReportedCase $case) {
             $carry += $case->newCases;
+
             return $carry;
         }, $initial = 0);
     }
@@ -115,6 +118,7 @@ class ReportedCases implements \Countable
     {
         return array_reduce($this->getLastReportedCases(), function (int $carry, ReportedCase $case) {
             $carry += $case->cumulativeCases;
+
             return $carry;
         }, $initial = 0);
     }
@@ -123,6 +127,7 @@ class ReportedCases implements \Countable
     {
         return array_reduce($this->getLastReportedCases(), function (int $carry, ReportedCase $case) {
             $carry += $case->newDeaths;
+
             return $carry;
         }, $initial = 0);
     }
@@ -131,6 +136,7 @@ class ReportedCases implements \Countable
     {
         return array_reduce($this->getLastReportedCases(), function (int $carry, ReportedCase $case) {
             $carry += $case->cumulativeDeaths;
+
             return $carry;
         }, $initial = 0);
     }
@@ -139,6 +145,7 @@ class ReportedCases implements \Countable
     {
         return array_reduce($this->getLastReportedCases(), function (int $carry, ReportedCase $case) {
             $carry += (int) $case->cumulativeRecoveries;
+
             return $carry;
         }, $initial = 0);
     }
@@ -149,7 +156,7 @@ class ReportedCases implements \Countable
         $lastReportedDate = end($dates);
 
         return $lastReportedDate
-            ? \DateTimeImmutable::createFromFormat ('!Y-m-d', $lastReportedDate)
+            ? \DateTimeImmutable::createFromFormat('!Y-m-d', $lastReportedDate)
             : null;
     }
 

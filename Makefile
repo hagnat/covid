@@ -2,8 +2,12 @@
 all: vendor/autoload.php wikipedia/portuguese wikipedia/english
 	@echo "=> all tables generated!"
 
+clear:
+	rm -rf var/tmp/*
+
 install:
 	bin/composer install
+	mkdir -p -m 0744 var/tmp
 
 vendor/autoload.php:
 	bin/composer install

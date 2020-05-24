@@ -3,7 +3,6 @@
 namespace App\Infrastructure\MediaWiki;
 
 use App\Application\ParserInterface;
-use App\Domain\ReportedCase;
 use App\Domain\ReportedCases;
 
 class EnglishGraphs implements ParserInterface
@@ -24,7 +23,7 @@ class EnglishGraphs implements ParserInterface
 
     private function buildStatisticalGraphs(ReportedCases $cases): string
     {
-        $contents = "== Statistics ==";
+        $contents = '== Statistics ==';
         $contents .= "\n<section begin=\"Statistics\"/>";
 
         $contents .= "\n<div style='display: inline-block; width: 800px; vertical-align: top;'>";
@@ -155,8 +154,7 @@ GRAPH;
 
         foreach ($newCases as $key => $value) {
             if (0 === $value) {
-                unset($newCases[$key]);
-                unset($totalConfirmedCases[$key]);
+                unset($newCases[$key], $totalConfirmedCases[$key]);
             }
         }
 
@@ -292,8 +290,7 @@ GRAPH;
 
         foreach ($newDeaths as $key => $value) {
             if (0 === $value) {
-                unset($newDeaths[$key]);
-                unset($totalConfirmedDeaths[$key]);
+                unset($newDeaths[$key], $totalConfirmedDeaths[$key]);
             }
         }
 
@@ -330,7 +327,7 @@ GRAPH;
 
     private function buildLogChart(): string
     {
-        return <<<CHART
+        return <<<'CHART'
 === Number of cases and deaths, on a logarithmic scale ===
 [[File:CoViD-19 BR.svg|thumb|600px|upright=2|left|Number of cases (blue) and number of deaths (red) on a [[logarithmic scale]].]]
 {{clear}}
@@ -340,7 +337,7 @@ CHART;
 
     private function buildHistoricalTable(ReportedCases $cases): string
     {
-        return <<<TABLE
+        return <<<'TABLE'
 == Timeline table, by state ==
 <section begin="Timeline"/>
 === Total cases and deaths, by state ===
@@ -419,7 +416,7 @@ TABLE;
     {
         $begin = new \DateTimeImmutable('2020-02-26');
         $interval = new \DateInterval('P1D');
-        $end =  $reportedCases->getLastReportedDate();
+        $end = $reportedCases->getLastReportedDate();
         $end = $end->add(new \DateInterval('P1D'));
 
         $period = new \DatePeriod($begin, $interval, $end);
@@ -432,7 +429,7 @@ TABLE;
 
     private function buildHeader(): string
     {
-        return <<<HEADER
+        return <<<'HEADER'
 {{main|COVID-19 pandemic in Brazil}}
 
 HEADER;
@@ -440,7 +437,7 @@ HEADER;
 
     private function buildFooter(): string
     {
-        return <<<FOOTER
+        return <<<'FOOTER'
 == References ==
 {{reflist|colwidth=30em}}
 

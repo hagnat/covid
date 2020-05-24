@@ -1,4 +1,9 @@
 /bin/
+!/var/input
 /var/input/*
+!/var/output
 /var/output/*
+!/var/tmp
+/var/tmp/*
 /vendor/
+.php_cs.cache

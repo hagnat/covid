@@ -3,8 +3,6 @@
 namespace App\Infrastructure\Svg;
 
 use App\Application\ParserInterface;
-use App\Domain\LocalCase;
-use App\Domain\LocalCases;
 
 class RioGrandeDoSulMapParser implements ParserInterface
 {

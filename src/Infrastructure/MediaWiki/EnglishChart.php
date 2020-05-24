@@ -3,7 +3,6 @@
 namespace App\Infrastructure\MediaWiki;
 
 use App\Application\ParserInterface;
-use App\Domain\ReportedCase;
 use App\Domain\ReportedCases;
 
 class EnglishChart implements ParserInterface
@@ -22,13 +21,14 @@ class EnglishChart implements ParserInterface
                 if (0 === $currentTotalRepeats++) {
                     $contents .= "\n;;;{$currentTotalCases}";
                 }
-                continue;
-            } else {
-                $previousTotalCases = $currentTotalCases;
-                $currentTotalRepeats = 0;
-            }
 
-            $contents .= sprintf("\n%s;%s;%s;%s",
+                continue;
+            }
+            $previousTotalCases = $currentTotalCases;
+            $currentTotalRepeats = 0;
+
+            $contents .= sprintf(
+                "\n%s;%s;%s;%s",
                 $date->format('Y-m-d'),
                 $currentDateCases->getTotalCumulativeDeaths() ?: '',
                 $currentDateCases->getTotalCumulativeRecoveries() ?: '',
@@ -42,7 +42,7 @@ class EnglishChart implements ParserInterface
 
     private function buildHeader(ReportedCases $reportedCases): string
     {
-        $contents = <<<HEADER
+        $contents = <<<'HEADER'
 {{Medical cases chart
 |numwidth=wmwm
 |disease=COVID-19
@@ -58,13 +58,13 @@ HEADER;
         }
         ksort($months);
 
-        $months = array_map(function(string $month) {
+        $months = array_map(function (string $month) {
             return sprintf('{{Medical cases chart/Month toggle button|%s}}', strtolower($month));
         }, $months);
 
         $contents .= "\n".implode("\n", $months);
 
-        $contents .= "\n" . <<<HEADER
+        $contents .= "\n" . <<<'HEADER'
 {{Medical cases chart/Month toggle button|l15}}
 </div>
 |right2     = # of deaths
@@ -79,7 +79,7 @@ HEADER;
 
     private function buildFooter(): string
     {
-        return <<<FOOTER
+        return <<<'FOOTER'
 |caption='''Sources:'''
 * Brazilian Ministry of Health <ref>{{cite web|url=https://coronavirus.saude.gov.br/|title=Brazil Ministry of Health|date=May 2020}}</ref>
 }}<noinclude>{{doc}}</noinclude>
@@ -90,7 +90,7 @@ FOOTER;
     {
         $begin = new \DateTimeImmutable('2020-02-26');
         $interval = new \DateInterval('P1D');
-        $end =  $reportedCases->getLastReportedDate();
+        $end = $reportedCases->getLastReportedDate();
         $end = $end->add(new \DateInterval('P1D'));
 
         $period = new \DatePeriod($begin, $interval, $end);

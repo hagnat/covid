@@ -15,7 +15,7 @@ class LocalCases
 
     public function filterByDate(\DateTime $dayFilter): LocalCases
     {
-        $filteredCases = new LocalCases;
+        $filteredCases = new LocalCases();
 
         foreach ($this->reportedCases as $day => $dayContents) {
             if ($day === $dayFilter->format('Y-m-d')) {
@@ -34,7 +34,7 @@ class LocalCases
 
     public function filterByMacroRegion(string $macroRegionFilter): LocalCases
     {
-        $filteredCases = new LocalCases;
+        $filteredCases = new LocalCases();
 
         foreach ($this->reportedCases as $day => $dayContents) {
             foreach ($dayContents as $macroRegionKey => $macroRegionCases) {
@@ -54,7 +54,7 @@ class LocalCases
 
     public function filterByMicroRegion(string $microRegionFilter): LocalCases
     {
-        $filteredCases = new LocalCases;
+        $filteredCases = new LocalCases();
 
         foreach ($this->reportedCases as $day => $dayContents) {
             foreach ($dayContents as $macroRegionKey => $macroRegionCases) {

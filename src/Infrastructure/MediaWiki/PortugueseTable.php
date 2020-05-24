@@ -3,7 +3,6 @@
 namespace App\Infrastructure\MediaWiki;
 
 use App\Application\ParserInterface;
-use App\Domain\ReportedCase;
 use App\Domain\ReportedCases;
 
 class PortugueseTable implements ParserInterface
@@ -101,7 +100,7 @@ class PortugueseTable implements ParserInterface
 
     private function buildHeader()
     {
-        return <<<HEADER
+        return <<<'HEADER'
 {| class="wikitable mw-datatable mw-collapsible" style="font-size:80%; text-align: center;"
 |+ style="font-size:125%" |{{nowrap|Casos e mortes pela COVID-19 no Brasil, por estado ({{navbar|{{subst:PAGENAME}}|mini=1|nodiv=1}})}}
 !rowspan=2 colspan=2|
@@ -150,7 +149,7 @@ HEADER;
 
     private function buildFooter()
     {
-        return <<<FOOTER
+        return <<<'FOOTER'
 |-
 !rowspan=2 colspan=2|
 ! {{flagicon|Acre}} <br/> [[Acre|AC]]
