@@ -1,11 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Infrastructure;
 
 use App\Domain\ReportedCase;
 use App\Domain\ReportedCases;
+use DateTimeImmutable;
 
-class CovidCsvReader
+final class CovidCsvReader
 {
     private $mode;
 
@@ -73,8 +76,8 @@ class CovidCsvReader
         $reportedCase->state = $data['estado'] ?? null;
         $reportedCase->region = $data['regiao'] ?? null;
 
-        $reportedCase->day = \DateTimeImmutable::createFromFormat('!d/m/Y', $data['data'])
-            ?: \DateTimeImmutable::createFromFormat('!Y-m-d', $data['data']);
+        $reportedCase->day = DateTimeImmutable::createFromFormat('!d/m/Y', $data['data'])
+            ?: DateTimeImmutable::createFromFormat('!Y-m-d', $data['data']);
 
         $reportedCase->cumulativeCases = $data['casosAcumulados']
             ?? $data['casosAcumulado']

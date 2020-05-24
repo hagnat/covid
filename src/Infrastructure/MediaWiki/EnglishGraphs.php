@@ -1,11 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Infrastructure\MediaWiki;
 
 use App\Application\ParserInterface;
 use App\Domain\ReportedCases;
+use DateInterval;
+use DatePeriod;
+use DateTimeImmutable;
+use DateTimeInterface;
 
-class EnglishGraphs implements ParserInterface
+final class EnglishGraphs implements ParserInterface
 {
     private const CASES_THRESHOLD = 100;
 
@@ -367,7 +373,7 @@ TABLE;
         $data = [];
 
         foreach ($this->getDateRange($reportedCases) as $day) {
-            $yesterday = $day->sub(new \DateInterval('P1D'));
+            $yesterday = $day->sub(new DateInterval('P1D'));
 
             $totalNewCases = $reportedCases->filterByDate($day)->getTotalCumulativeCases();
             $totalNewCases -= $reportedCases->filterByDate($yesterday)->getTotalCumulativeCases();
@@ -394,7 +400,7 @@ TABLE;
         $data = [];
 
         foreach ($this->getDateRange($reportedCases) as $day) {
-            $yesterday = $day->sub(new \DateInterval('P1D'));
+            $yesterday = $day->sub(new DateInterval('P1D'));
 
             $totalNewDeaths = $reportedCases->filterByDate($day)->getTotalCumulativeDeaths();
             $totalNewDeaths -= $reportedCases->filterByDate($yesterday)->getTotalCumulativeDeaths();
@@ -407,19 +413,19 @@ TABLE;
 
     private function listDates(ReportedCases $reportedCases, string $format = 'Y-m-d'): array
     {
-        return array_map(function (\DateTimeInterface $day) use ($format) {
+        return array_map(function (DateTimeInterface $day) use ($format) {
             return $day->format($format);
         }, $this->getDateRange($reportedCases));
     }
 
     private function getDateRange(ReportedCases $reportedCases): array
     {
-        $begin = new \DateTimeImmutable('2020-02-26');
-        $interval = new \DateInterval('P1D');
+        $begin = new DateTimeImmutable('2020-02-26');
+        $interval = new DateInterval('P1D');
         $end = $reportedCases->getLastReportedDate();
-        $end = $end->add(new \DateInterval('P1D'));
+        $end = $end->add(new DateInterval('P1D'));
 
-        $period = new \DatePeriod($begin, $interval, $end);
+        $period = new DatePeriod($begin, $interval, $end);
 
         $dates = [];
         foreach ($period as $dates[]);

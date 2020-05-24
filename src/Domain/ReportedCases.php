@@ -1,8 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Domain;
 
-class ReportedCases implements \Countable
+use Countable;
+use DateTime;
+use DateTimeImmutable;
+use DateTimeInterface;
+
+final class ReportedCases implements Countable
 {
     private $reportedCases = [];
 
@@ -36,7 +43,7 @@ class ReportedCases implements \Countable
         $mergedCases = clone $this;
 
         foreach ($cases->groupByDate() as $day => $casesByDate) {
-            if (0 === count($mergedCases->filterByDate(new \DateTime($day)))) {
+            if (0 === count($mergedCases->filterByDate(new DateTime($day)))) {
                 $contents = $casesByDate->getArrayCopy();
                 $mergedCases->add(...$contents);
             }
@@ -87,7 +94,7 @@ class ReportedCases implements \Countable
         return new ReportedCases(...array_values($filteredCases));
     }
 
-    public function filterByDate(\DateTimeInterface $date): ReportedCases
+    public function filterByDate(DateTimeInterface $date): ReportedCases
     {
         $filteredCases = $this->reportedCases[$date->format('Y-m-d')] ?? [];
 
@@ -150,13 +157,13 @@ class ReportedCases implements \Countable
         }, $initial = 0);
     }
 
-    public function getLastReportedDate(): ?\DateTimeInterface
+    public function getLastReportedDate(): ?DateTimeInterface
     {
         $dates = array_keys($this->reportedCases);
         $lastReportedDate = end($dates);
 
         return $lastReportedDate
-            ? \DateTimeImmutable::createFromFormat('!Y-m-d', $lastReportedDate)
+            ? DateTimeImmutable::createFromFormat('!Y-m-d', $lastReportedDate)
             : null;
     }
 

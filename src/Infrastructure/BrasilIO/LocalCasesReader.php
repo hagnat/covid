@@ -1,11 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Infrastructure\BrasilIO;
 
 use App\Domain\LocalCase;
 use App\Domain\LocalCases;
+use DateTime;
 
-class LocalCasesReader
+final class LocalCasesReader
 {
     public function __construct(string $cityMapFilename)
     {
@@ -44,8 +47,8 @@ class LocalCasesReader
 
         $cityData = $this->findCity($data['city']);
 
-        $case->day = \DateTime::createFromFormat('d/m/Y', $data['date'])
-            ?: \DateTime::createFromFormat('Y-m-d', $data['date']);
+        $case->day = DateTime::createFromFormat('d/m/Y', $data['date'])
+            ?: DateTime::createFromFormat('Y-m-d', $data['date']);
         $case->state = $data['state'];
         $case->macroRegion = $cityData['MacroRegion'];
         $case->microRegion = $cityData['MicroRegion'];

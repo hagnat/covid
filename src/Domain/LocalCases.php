@@ -1,8 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Domain;
 
-class LocalCases
+use DateTime;
+
+final class LocalCases
 {
     private $reportedCases = [];
 
@@ -13,7 +17,7 @@ class LocalCases
         }
     }
 
-    public function filterByDate(\DateTime $dayFilter): LocalCases
+    public function filterByDate(DateTime $dayFilter): LocalCases
     {
         $filteredCases = new LocalCases();
 

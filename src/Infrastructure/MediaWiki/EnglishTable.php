@@ -1,18 +1,24 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Infrastructure\MediaWiki;
 
 use App\Application\ParserInterface;
 use App\Domain\ReportedCases;
+use DateInterval;
+use DatePeriod;
+use DateTimeImmutable;
+use DateTimeInterface;
 
-class EnglishTable implements ParserInterface
+final class EnglishTable implements ParserInterface
 {
     public function parse($reportedCases): string
     {
         $contents = $this->buildHeader();
 
         foreach ($this->getDateRange($reportedCases) as $date) {
-            $previousDate = $date->sub(new \DateInterval('P1D'));
+            $previousDate = $date->sub(new DateInterval('P1D'));
 
             $contents .= $this->buildRow(
                 $reportedCases->filterByDate($date),
@@ -26,7 +32,7 @@ class EnglishTable implements ParserInterface
         return $contents;
     }
 
-    private function buildRow(ReportedCases $cases, ReportedCases $previousDayCases, \DateTimeInterface $day): string
+    private function buildRow(ReportedCases $cases, ReportedCases $previousDayCases, DateTimeInterface $day): string
     {
         if (0 == $cases->getTotalCumulativeCases()) {
             return '';
@@ -216,12 +222,12 @@ FOOTER;
 
     private function getDateRange(ReportedCases $cases): array
     {
-        $begin = new \DateTimeImmutable('2020-02-26');
-        $interval = new \DateInterval('P1D');
+        $begin = new DateTimeImmutable('2020-02-26');
+        $interval = new DateInterval('P1D');
         $end = $cases->getLastReportedDate();
-        $end = $end->add(new \DateInterval('P1D'));
+        $end = $end->add(new DateInterval('P1D'));
 
-        $period = new \DatePeriod($begin, $interval, $end);
+        $period = new DatePeriod($begin, $interval, $end);
 
         $dates = [];
         foreach ($period as $dates[]);

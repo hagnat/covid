@@ -2,10 +2,18 @@
 
 define('ROOT_DIR', realpath(__DIR__ . '/..'));
 
-$currentFile = ROOT_DIR . '/var/input/current.csv';
-$archiveFile = ROOT_DIR . sprintf("/var/input/%s-brasil-covid-data.csv", date('Y-m-d'));
+require_once ROOT_DIR . '/vendor/autoload.php';
 
-if (file_exists($currentFile) && date('Y-m-d H', filemtime($currentFile)) == date('Y-m-d H')) {
+use PhpOffice\PhpSpreadsheet\Reader\Xlsx as ExcelReader;
+use PhpOffice\PhpSpreadsheet\Writer\Csv as CsvWriter;
+
+@mkdir(ROOT_DIR . '/var/input');
+@mkdir(ROOT_DIR . '/var/tmp');
+
+$archiveFile = ROOT_DIR . sprintf("/var/input/%s-brasil-covid-data.csv", date('Y-m-d'));
+$tmpFile = tempnam(ROOT_DIR . '/var/tmp', 'hm-covid-data');
+
+if (file_exists($archiveFile) && date('Y-m-d H', filemtime($archiveFile)) == date('Y-m-d H')) {
     die ("   File was recently updated. No need to download it again.\n");
 }
 
@@ -23,15 +31,22 @@ curl_setopt_array($curl, [
 ]);
 $result = curl_exec($curl);
 
-echo "   Parsing data to CSV format...\n";
 $contents = json_decode($result, true);
 $data = file_get_contents($contents['results']['0']['arquivo']['url']);
 
-echo "   Saving CSV data to archive file...\n";
-file_put_contents($archiveFile, $data);
+echo "   Saving data to temporary file...";
+file_put_contents($tmpFile, $data);
 
-echo "   Updating current.csv symlink...";
-@unlink($currentFile);
-symlink ($archiveFile, $currentFile);
+echo "   Reading contents from Excel file...";
+$reader = new ExcelReader();
+$reader->setReadDataOnly(true);
+$spreadsheet = $reader->load($tmpFile);
+
+echo "   Saving data to archive file...\n";
+$writer = new CsvWriter($spreadsheet);
+$writer->save($archiveFile);
+
+echo "   Remove temporary file...";
+unlink($tmpFile);
 
 echo "   Download complete!\n";

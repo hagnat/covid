@@ -1,11 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Infrastructure\MediaWiki;
 
 use App\Application\ParserInterface;
 use App\Domain\ReportedCases;
+use DateInterval;
+use DatePeriod;
+use DateTimeImmutable;
 
-class EnglishChart implements ParserInterface
+final class EnglishChart implements ParserInterface
 {
     public function parse($reportedCases): string
     {
@@ -88,12 +93,12 @@ FOOTER;
 
     private function getDateRange(ReportedCases $reportedCases): array
     {
-        $begin = new \DateTimeImmutable('2020-02-26');
-        $interval = new \DateInterval('P1D');
+        $begin = new DateTimeImmutable('2020-02-26');
+        $interval = new DateInterval('P1D');
         $end = $reportedCases->getLastReportedDate();
-        $end = $end->add(new \DateInterval('P1D'));
+        $end = $end->add(new DateInterval('P1D'));
 
-        $period = new \DatePeriod($begin, $interval, $end);
+        $period = new DatePeriod($begin, $interval, $end);
 
         $dates = [];
         foreach ($period as $dates[]);

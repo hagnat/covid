@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Domain;
 
-class LocalCase
+final class LocalCase
 {
     public $day;
 

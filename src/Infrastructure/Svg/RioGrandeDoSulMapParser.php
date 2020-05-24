@@ -1,10 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Infrastructure\Svg;
 
 use App\Application\ParserInterface;
+use DateTime;
 
-class RioGrandeDoSulMapParser implements ParserInterface
+final class RioGrandeDoSulMapParser implements ParserInterface
 {
     private $templateName;
 
@@ -15,7 +18,7 @@ class RioGrandeDoSulMapParser implements ParserInterface
 
     public function parse($cases): string
     {
-        $currentData = $cases->filterByDate(new \DateTime('yesterday'));
+        $currentData = $cases->filterByDate(new DateTime('yesterday'));
 
         $contents = "microRegion, cases, deaths\n";
 
