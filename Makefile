@@ -5,8 +5,8 @@ COMPOSER ?= bin/composer
 all: clear composer lint wikipedia
 
 .PHONY: ci
-ci: clear lint/composer composer | php-cs-fixer test
-	@echo '=> prepare to commit'
+ci: clear lint/composer composer | php-cs-fixer/fix phpstan test
+	@echo '=> ready to commit'
 
 .PHONY: clear
 clear:
@@ -117,8 +117,8 @@ php-cs-fixer/fix: composer
 
 .PHONY: phpstan
 phpstan:
-	bin/phpstan analyse --no-progrss --no-interaction --no-ansi --level=1 src/
+	bin/phpstan analyse --no-progress --no-interaction --no-ansi --level=4 src/
 
 .PHONY: test
 test: composer
-	@echo 'TODO: add phpunit tets'
+	@echo 'TODO: add phpunit tests'

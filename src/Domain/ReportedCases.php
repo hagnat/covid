@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Domain;
 
+use Carbon\Carbon as DateTime;
+use Carbon\CarbonImmutable as DateTimeImmutable;
+use Carbon\CarbonInterface as DateTimeInterface;
 use Countable;
-use DateTime;
-use DateTimeImmutable;
-use DateTimeInterface;
 
 final class ReportedCases implements Countable
 {
@@ -70,7 +70,7 @@ final class ReportedCases implements Countable
 
         foreach ($this->reportedCases as $day => $cases) {
             foreach ($cases as $case) {
-                if (strtoupper($region) === strtoupper($case->region)) {
+                if (mb_strtoupper($region) === mb_strtoupper($case->region)) {
                     $filteredCases[] = $case;
                 }
             }
@@ -85,7 +85,7 @@ final class ReportedCases implements Countable
 
         foreach ($this->reportedCases as $day => $cases) {
             foreach ($cases as $case) {
-                if (strtoupper($state) === $case->state) {
+                if (mb_strtoupper($state) === $case->state) {
                     $filteredCases[] = $case;
                 }
             }

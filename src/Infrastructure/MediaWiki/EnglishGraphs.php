@@ -6,10 +6,10 @@ namespace App\Infrastructure\MediaWiki;
 
 use App\Application\ParserInterface;
 use App\Domain\ReportedCases;
-use DateInterval;
-use DatePeriod;
-use DateTimeImmutable;
-use DateTimeInterface;
+use Carbon\CarbonImmutable as DateTimeImmutable;
+use Carbon\CarbonInterface as DateTimeInterface;
+use Carbon\CarbonInterval as DateInterval;
+use Carbon\CarbonPeriod as DatePeriod;
 
 final class EnglishGraphs implements ParserInterface
 {
@@ -423,7 +423,7 @@ TABLE;
         $begin = new DateTimeImmutable('2020-02-26');
         $interval = new DateInterval('P1D');
         $end = $reportedCases->getLastReportedDate();
-        $end = $end->add(new DateInterval('P1D'));
+        $end = $end->add($interval);
 
         $period = new DatePeriod($begin, $interval, $end);
 

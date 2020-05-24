@@ -6,9 +6,9 @@ namespace App\Infrastructure\MediaWiki;
 
 use App\Application\ParserInterface;
 use App\Domain\ReportedCases;
-use DateInterval;
-use DatePeriod;
-use DateTimeImmutable;
+use Carbon\CarbonImmutable as DateTimeImmutable;
+use Carbon\CarbonInterval as DateInterval;
+use Carbon\CarbonPeriod as DatePeriod;
 
 final class EnglishChart implements ParserInterface
 {
@@ -64,7 +64,7 @@ HEADER;
         ksort($months);
 
         $months = array_map(function (string $month) {
-            return sprintf('{{Medical cases chart/Month toggle button|%s}}', strtolower($month));
+            return sprintf('{{Medical cases chart/Month toggle button|%s}}', mb_strtolower($month));
         }, $months);
 
         $contents .= "\n".implode("\n", $months);
@@ -96,7 +96,7 @@ FOOTER;
         $begin = new DateTimeImmutable('2020-02-26');
         $interval = new DateInterval('P1D');
         $end = $reportedCases->getLastReportedDate();
-        $end = $end->add(new DateInterval('P1D'));
+        $end = $end->add($interval);
 
         $period = new DatePeriod($begin, $interval, $end);
 

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Infrastructure\Svg;
 
 use App\Application\ParserInterface;
-use DateTime;
+use Carbon\Carbon as DateTime;
 
 final class RioGrandeDoSulMapParser implements ParserInterface
 {

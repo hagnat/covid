@@ -34,19 +34,21 @@ $result = curl_exec($curl);
 $contents = json_decode($result, true);
 $data = file_get_contents($contents['results']['0']['arquivo']['url']);
 
-echo "   Saving data to temporary file...";
+echo "   Saving data to temporary file...\n";
 file_put_contents($tmpFile, $data);
 
-echo "   Reading contents from Excel file...";
+echo "   Reading contents from Excel file...\n";
 $reader = new ExcelReader();
 $reader->setReadDataOnly(true);
 $spreadsheet = $reader->load($tmpFile);
 
 echo "   Saving data to archive file...\n";
 $writer = new CsvWriter($spreadsheet);
+$writer->setDelimiter(';');
+$writer->setEnclosure('');
 $writer->save($archiveFile);
 
-echo "   Remove temporary file...";
+echo "   Remove temporary file...\n";
 unlink($tmpFile);
 
 echo "   Download complete!\n";

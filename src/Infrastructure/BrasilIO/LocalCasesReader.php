@@ -6,10 +6,13 @@ namespace App\Infrastructure\BrasilIO;
 
 use App\Domain\LocalCase;
 use App\Domain\LocalCases;
-use DateTime;
+use Carbon\CarbonImmutable as DateTimeImmutable;
+use Throwable;
 
 final class LocalCasesReader
 {
+    private $cityMap = [];
+
     public function __construct(string $cityMapFilename)
     {
         $this->readCityMap($cityMapFilename);
@@ -47,8 +50,12 @@ final class LocalCasesReader
 
         $cityData = $this->findCity($data['city']);
 
-        $case->day = DateTime::createFromFormat('d/m/Y', $data['date'])
-            ?: DateTime::createFromFormat('Y-m-d', $data['date']);
+        try {
+            $case->day = DateTimeImmutable::createFromFormat('!d/m/Y', $data['data']);
+        } catch (Throwable $e) {
+            $case->day = DateTimeImmutable::createFromFormat('!Y-m-d', $data['data']);
+        }
+
         $case->state = $data['state'];
         $case->macroRegion = $cityData['MacroRegion'];
         $case->microRegion = $cityData['MicroRegion'];

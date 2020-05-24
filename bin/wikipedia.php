@@ -38,7 +38,7 @@ switch (strtolower($language)) {
         break;
 }
 
-echo "   lookup last updated file\n";
+echo "   looking for last updated file...\n";
 $finder = new Finder();
 $finder->files()->in(ROOT_DIR . '/var/input/')->name('*-brasil-covid-data.csv')->sortByName();
 $files = $finder->getIterator();

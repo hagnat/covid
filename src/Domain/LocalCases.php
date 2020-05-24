@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain;
 
-use DateTime;
+use Carbon\CarbonInterface as DateTimeInterface;
 
 final class LocalCases
 {
@@ -17,7 +17,7 @@ final class LocalCases
         }
     }
 
-    public function filterByDate(DateTime $dayFilter): LocalCases
+    public function filterByDate(DateTimeInterface $dayFilter): LocalCases
     {
         $filteredCases = new LocalCases();
 
@@ -42,7 +42,7 @@ final class LocalCases
 
         foreach ($this->reportedCases as $day => $dayContents) {
             foreach ($dayContents as $macroRegionKey => $macroRegionCases) {
-                if (strtoupper($macroRegionKey) === strtoupper($macroRegionFilter)) {
+                if (mb_strtoupper($macroRegionKey) === mb_strtoupper($macroRegionFilter)) {
                     foreach ($macroRegionCases as $microRegionKey => $microRegionCases) {
                         $filteredCases->add(...$microRegionCases);
                     }
@@ -63,7 +63,7 @@ final class LocalCases
         foreach ($this->reportedCases as $day => $dayContents) {
             foreach ($dayContents as $macroRegionKey => $macroRegionCases) {
                 foreach ($macroRegionCases as $microRegionKey => $microRegionCases) {
-                    if (strtoupper($microRegionKey) === strtoupper($microRegionFilter)) {
+                    if (mb_strtoupper($microRegionKey) === mb_strtoupper($microRegionFilter)) {
                         $filteredCases->add(...$microRegionCases);
 
                         // return to first loop

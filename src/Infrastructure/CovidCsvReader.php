@@ -6,7 +6,8 @@ namespace App\Infrastructure;
 
 use App\Domain\ReportedCase;
 use App\Domain\ReportedCases;
-use DateTimeImmutable;
+use Carbon\CarbonImmutable as DateTimeImmutable;
+use Throwable;
 
 final class CovidCsvReader
 {
@@ -76,8 +77,11 @@ final class CovidCsvReader
         $reportedCase->state = $data['estado'] ?? null;
         $reportedCase->region = $data['regiao'] ?? null;
 
-        $reportedCase->day = DateTimeImmutable::createFromFormat('!d/m/Y', $data['data'])
-            ?: DateTimeImmutable::createFromFormat('!Y-m-d', $data['data']);
+        try {
+            $reportedCase->day = DateTimeImmutable::createFromFormat('!d/m/Y', $data['data']);
+        } catch (Throwable $e) {
+            $reportedCase->day = DateTimeImmutable::createFromFormat('!Y-m-d', $data['data']);
+        }
 
         $reportedCase->cumulativeCases = $data['casosAcumulados']
             ?? $data['casosAcumulado']

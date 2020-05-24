@@ -10,20 +10,20 @@
         "psr-4": {"App\\": "src/"}
     },
     "require": {
+        "php": ">=7.2",
+        "nesbot/carbon": "^2.34",
         "phpoffice/phpspreadsheet": "^1.12",
-        "symfony/finder": "^5.0"
+        "symfony/finder": "^5.0",
+        "webmozart/assert": "^1.8"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^2.16",
         "leaseweb/lint-php": "^0.1.0",
         "phpstan/phpstan": "^0.12.25",
-        "phpunit/phpunit": "^9.1"
+        "phpunit/phpunit": "^8.5"
     },
     "config": {
         "bin-dir": "bin",
-        "platform": {
-            "php": "7.1"
-        },
         "sort-packages": true
     },
     "minimum-stability": "stable",
