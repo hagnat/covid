@@ -21,12 +21,12 @@ vendor/autoload.php:
 		--no-ansi
 
 .PHONY: download/brasil/minister
-download/brasil/minister: composer
+download/brasil/minister: ci
 	@echo "=> downloads current data from Brazil's Ministry of Health"
 	php bin/download-minister.php
 
 .PHONY: download/brasil/rs
-download/brasil/rs: composer
+download/brasil/rs: ci
 	@echo '=> downloads Brasil/RS data from BrasilIO'
 	php bin/download-brasilio.php rs
 
@@ -35,12 +35,12 @@ wikipedia: composer lint | wikipedia/english wikipedia/portuguese
 	@echo '=> generates all wikipedia entries'
 
 .PHONY: wikipedia/english
-wikipedia/english: composer download/brasil/minister
+wikipedia/english: ci download/brasil/minister
 	@echo '=> generates english wikipedia artiles'
 	php bin/wikipedia.php en
 
 .PHONY: wikipedia/portuguese
-wikipedia/portuguese: composer download/brasil/minister
+wikipedia/portuguese: ci download/brasil/minister
 	@echo '=> generates portuguese wikipedia articles'
 	php bin/wikipedia.php pt
 

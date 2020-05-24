@@ -44,65 +44,49 @@ $finder->files()->in(ROOT_DIR . '/var/input/')->name('*-brasil-covid-data.csv')-
 $files = $finder->getIterator();
 
 if (!count($files)) {
-    die("No files found.");
+    die("no files found.");
 }
 
 $filename = end($files)->getPathname();
-
-$files = [
-    [$filename, ';'],
-];
+$separator = ';';
 
 echo "   extracting local data from CSV files...\n";
-$localReader = CovidCsvReader::localReader();
+$reader = new CovidCsvReader();
 
-$localCases = new ReportedCases;
-foreach ($files as [$file, $separator]) {
-    $cases = $localReader->read($file, $separator);
-    $localCases = $localCases->merge($cases);
-}
-
-// echo "   extracting national data from CSV files...\n";
-// $nationalReader = CovidCsvReader::nationalReader();
-
-// $nationalCases = new ReportedCases;
-// foreach ($files as [$file, $separator]) {
-//     $cases = $nationalReader->read($file, $separator);
-//     $nationalCases = $nationalCases->merge($cases);
-// }
+$reportedCases = $reader->read($filename, $separator);
 
 $outputDir = ROOT_DIR . "/var/output/wikipedia-{$language}";
 @mkdir($outputDir);
 
 // if ($chartParser) {
-//     echo "   Parsing chart...\n";
-//     $contents = $chartParser->parse($nationalCases);
+//     echo "   parsing chart...\n";
+//     $contents = $chartParser->parse($reportedCases);
 
 //     $outputFile = $outputDir . '/chart.txt';
 //     file_put_contents($outputFile, $contents);
 
-//     echo "   Chart parsed!\n";
-//     echo "   Check {$outputFile}\n";
+//     echo "   chart parsed!\n";
+//     echo "   check {$outputFile}\n";
 // }
 
 if ($graphsParser) {
-    echo "   Parsing graphs...\n";
-    $contents = $graphsParser->parse($localCases);
+    echo "   parsing graphs...\n";
+    $contents = $graphsParser->parse($reportedCases);
 
     $outputFile = $outputDir . '/graphs.txt';
     file_put_contents($outputFile, $contents);
 
-    echo "   Graphs parsed!\n";
-    echo "   Check {$outputFile}\n";
+    echo "   graphs parsed!\n";
+    echo "   check {$outputFile}\n";
 }
 
 if ($tableParser) {
-    echo "   Parsing table...\n";
-    $contents = $tableParser->parse($localCases);
+    echo "   parsing table...\n";
+    $contents = $tableParser->parse($reportedCases);
 
     $outputFile = $outputDir . '/table.txt';
     file_put_contents($outputFile, $contents);
 
-    echo "   Table parsed!\n";
-    echo "   Check {$outputFile}\n";
+    echo "   table parsed!\n";
+    echo "   check {$outputFile}\n";
 }

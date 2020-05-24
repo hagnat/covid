@@ -6,28 +6,9 @@ namespace App\Infrastructure;
 
 use App\Domain\ReportedCase;
 use App\Domain\ReportedCases;
-use Carbon\CarbonImmutable as DateTimeImmutable;
-use Throwable;
 
 final class CovidCsvReader
 {
-    private $mode;
-
-    private function __construct(string $mode)
-    {
-        $this->mode = $mode;
-    }
-
-    public static function nationalReader(): self
-    {
-        return new static('national');
-    }
-
-    public static function localReader(): self
-    {
-        return new static('local');
-    }
-
     public function read(string $filename, string $csvSeparator): ReportedCases
     {
         $reportedCases = new ReportedCases();
@@ -36,31 +17,11 @@ final class CovidCsvReader
             die('Unable to open CSV file');
         }
 
-        $headers = null;
+        $headers = fgetcsv($handle, null, $csvSeparator);
+
         while (false !== ($data = fgetcsv($handle, null, $csvSeparator))) {
-            if (null === $headers) {
-                $headers = $data;
-
-                continue;
-            }
-
             $row = array_combine($headers, $data);
-
-            if ('local' === $this->mode && (!trim($row['estado'] ?? '') || trim($row['codmun'] ?? ''))) {
-                // only gets the data from states
-                continue;
-            }
-
-            if ('national' === $this->mode && 'Brasil' !== $row['regiao']) {
-                // only gets the data from country
-                continue;
-            }
-
-            $case = $this->parseRow($row);
-
-            if (0 == $case->cumulativeCases) {
-                continue;
-            }
+            $case = ReportedCase::fromCsv($row);
 
             $reportedCases->add($case);
         }
@@ -68,30 +29,5 @@ final class CovidCsvReader
         fclose($handle);
 
         return $reportedCases;
-    }
-
-    private function parseRow(array $data): ReportedCase
-    {
-        $reportedCase = new ReportedCase();
-
-        $reportedCase->state = $data['estado'] ?? null;
-        $reportedCase->region = $data['regiao'] ?? null;
-
-        try {
-            $reportedCase->day = DateTimeImmutable::createFromFormat('!d/m/Y', $data['data']);
-        } catch (Throwable $e) {
-            $reportedCase->day = DateTimeImmutable::createFromFormat('!Y-m-d', $data['data']);
-        }
-
-        $reportedCase->cumulativeCases = $data['casosAcumulados']
-            ?? $data['casosAcumulado']
-            ?? 0;
-        $reportedCase->cumulativeDeaths = $data['obitosAcumulados']
-            ?? $data['obitosAcumulado']
-            ?? 0;
-        $reportedCase->cumulativeRecoveries = $data['Recuperadosnovos']
-            ?? 0;
-
-        return $reportedCase;
     }
 }
