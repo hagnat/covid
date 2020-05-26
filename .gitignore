@@ -1,11 +1,13 @@
-bin/
-!var/input
-var/input/*
-!var/output
-var/output/*
-!var/tmp
-var/tmp/*
-vendor/
+###> symfony/framework-bundle ###
+/.env.local
+/.env.local.php
+/.env.*.local
+/config/secrets/prod/prod.decrypt.private.php
+/public/bundles/
+/var/
+/vendor/
+###< symfony/framework-bundle ###
 
+bin/
 composer.lock
 .php_cs.cache

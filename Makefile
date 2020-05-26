@@ -23,7 +23,7 @@ vendor/autoload.php:
 .PHONY: download/brasil/minister
 download/brasil/minister: ci
 	@echo "=> downloads current data from Brazil's Ministry of Health"
-	php bin/download-minister.php
+	bin/console download:minister-of-health
 
 .PHONY: download/brasil/rs
 download/brasil/rs: ci
