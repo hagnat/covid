@@ -37,12 +37,12 @@ wikipedia: composer lint | wikipedia/english wikipedia/portuguese
 .PHONY: wikipedia/english
 wikipedia/english: ci download/brasil/minister
 	@echo '=> generates english wikipedia artiles'
-	php bin/wikipedia.php en
+	bin/console wikipedia:create-articles en
 
 .PHONY: wikipedia/portuguese
 wikipedia/portuguese: ci download/brasil/minister
 	@echo '=> generates portuguese wikipedia articles'
-	php bin/wikipedia.php pt
+	bin/console wikipedia:create-articles pt
 
 .PHONY: maps
 maps: composer | maps/brasil

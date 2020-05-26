@@ -15,7 +15,6 @@ final class MinisterOfHealthCommand extends Command
 {
     protected static $defaultName = 'download:minister-of-health';
 
-    private $logger;
     private $inputDir;
     private $tmpDir;
 
