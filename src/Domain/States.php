@@ -8,7 +8,7 @@ use ArrayIterator;
 
 final class States extends ArrayIterator
 {
-    private static $englishInstance;
+    private static $instances = [];
 
     private function __construct(State ...$states)
     {
@@ -17,11 +17,11 @@ final class States extends ArrayIterator
 
     public static function english(): States
     {
-        if (null !== static::$englishInstance) {
-            return static::$englishInstance;
+        if (!empty(static::$instances['en'])) {
+            return static::$instances['en'];
         }
 
-        $data = [
+        static::$instances['en'] = static::build([
             'North' => [
                 ['Acre', 'AC', 'Acre (state)'],
                 ['Amapá', 'AP'],
@@ -59,21 +59,58 @@ final class States extends ArrayIterator
                 ['Rio Grande do Sul', 'RS'],
                 ['Santa Catarina', 'SC', 'Santa Catarina (state)'],
             ],
-        ];
+        ]);
 
-        $states = [];
-        foreach ($data as $region => $regionStates) {
-            foreach ($regionStates as $stateData) {
-                $name = array_shift($stateData);
-                $code = array_shift($stateData);
-                $wikipediaEntry = array_shift($stateData);
-                $wikipediaFlag = array_shift($stateData);
+        return static::$instances['en'];
+    }
 
-                $states[] = new State($name, $code, Region::fromName($region), $wikipediaEntry, $wikipediaFlag);
-            }
+    public static function portuguese(): States
+    {
+        if (!empty(static::$instances['pt'])) {
+            return static::$instances['pt'];
         }
 
-        return static::$englishInstance = new static(...$states);
+        static::$instances['pt'] = static::build([
+            'Norte' => [
+                ['Acre', 'AC'],
+                ['Amapá', 'AP'],
+                ['Amazonas', 'AM'],
+                ['Pará', 'PA'],
+                ['Rondônia', 'RO'],
+                ['Roraima', 'RR'],
+                ['Tocantins', 'TO'],
+            ],
+            'Nordeste' => [
+                ['Alagoas', 'AL'],
+                ['Bahia', 'BA'],
+                ['Ceará', 'CE'],
+                ['Maranhão', 'MA'],
+                ['Paraíba', 'PB'],
+                ['Pernambuco', 'PE'],
+                ['Piauí', 'PI'],
+                ['Rio Grande do Norte', 'RN'],
+                ['Sergipe', 'SE'],
+            ],
+            'Centro-Oeste' => [
+                ['Distrito Federal', 'DF', 'Distrito Federal (Brasil)'],
+                ['Goiás', 'GO'],
+                ['Mato Grosso', 'MT'],
+                ['Mato Grosso do Sul', 'MS'],
+            ],
+            'Sudeste' => [
+                ['Espírito Santo', 'ES', 'Espírito Santo (estado)'],
+                ['Minas Gerais', 'MG'],
+                ['Rio de Janeiro', 'RJ'],
+                ['São Paulo', 'SP'],
+            ],
+            'Sul' => [
+                ['Paraná', 'PR', 'Paraná'],
+                ['Rio Grande do Sul', 'RS'],
+                ['Santa Catarina', 'SC'],
+            ],
+        ]);
+
+        return static::$instances['pt'];
     }
 
     public function sort(): States
@@ -121,6 +158,23 @@ final class States extends ArrayIterator
     public function southStates(): States
     {
         return $this->fromRegion(Region::south());
+    }
+
+    private static function build(array $data): States
+    {
+        $states = [];
+        foreach ($data as $region => $regionStates) {
+            foreach ($regionStates as $stateData) {
+                $name = array_shift($stateData);
+                $code = array_shift($stateData);
+                $wikipediaEntry = array_shift($stateData);
+                $wikipediaFlag = array_shift($stateData);
+
+                $states[] = new State($name, $code, Region::fromName($region), $wikipediaEntry, $wikipediaFlag);
+            }
+        }
+
+        return new static(...$states);
     }
 
     private function fromRegion(Region $region): States

@@ -9,6 +9,7 @@ use App\Domain\ReportedCases;
 use App\Domain\States;
 use Carbon\CarbonImmutable as DateTimeImmutable;
 use Carbon\CarbonInterface as DateTimeInterface;
+use Carbon\CarbonInterval as DateInterval;
 use Carbon\CarbonPeriod as DatePeriod;
 
 final class EnglishTable implements ParserInterface
@@ -150,7 +151,6 @@ HEADER;
 !colspan=4| [[Central-West_Region,_Brazil|Central-West]]
 !colspan=4| [[Southeast_Region,_Brazil|Southeast]]
 !colspan=3| [[South_Region,_Brazil|South]]
-
 !colspan=2| Cases
 !colspan=2| Deaths
 |-
@@ -181,7 +181,7 @@ FOOTER;
     private function getDateRange(ReportedCases $reportedCases): array
     {
         return DatePeriod::create()
-            ->every('1 day')
+            ->every(DateInterval::make(1, 'day'))
             ->setDates($reportedCases->getFirstReportedDate(), $reportedCases->getLastReportedDate())
             ->setDateClass(DateTimeImmutable::class)
             ->toArray();

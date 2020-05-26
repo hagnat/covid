@@ -103,7 +103,7 @@ lint/yaml-filetype: composer
 lint/yaml-syntax:
 	@echo '=> validates all YAML files'
 	@git ls-files '*.yaml' | sed -r 's|/[^/]+$$||' | sort | uniq | while read folder; do echo -n "$$folder"; bin/console --no-debug --no-interaction  --env=test lint:yaml "$$folder" || exit 1; done
-	if [ $(yaml_files) ]; then echo "Files found."; else echo "No files found."; fi
+	@echo '=> all YAML files are OK!'
 
 .PHONY: php-cs-fixer/diff
 php-cs-fixer/diff: composer

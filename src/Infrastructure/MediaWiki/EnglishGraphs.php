@@ -10,6 +10,7 @@ use App\Domain\Region;
 use App\Domain\ReportedCases;
 use Carbon\CarbonImmutable as DateTimeImmutable;
 use Carbon\CarbonInterface as DateTimeInterface;
+use Carbon\CarbonInterval as DateInterval;
 use Carbon\CarbonPeriod as DatePeriod;
 
 final class EnglishGraphs implements ParserInterface
@@ -30,6 +31,7 @@ final class EnglishGraphs implements ParserInterface
     {
         $contents = '== Statistics ==';
         $contents .= "\n<section begin=\"Statistics\"/>";
+        //$contents .= "\nDue the high volume of data, the graphs display data once every 3 days.";
 
         $contents .= "\n<div style='display: inline-block; width: 800px; vertical-align: top;'>";
         $contents .= "\n" . $this->buildTotalConfirmedCasesGraph($cases);
@@ -92,12 +94,13 @@ GRAPH;
         $data = implode(', ', $this->listTotalNewCases($cases->nationalCases()));
 
         return <<<GRAPH
-=== New cases per day ===
+=== New cases, per day ===
+<div style="max-width: 800px; overflow-x: scroll;">
 {{Graph:Chart
 |type=rect
 |linewidth=1
 |showSymbols=1
-|width=700
+|width=1400
 |colors={{Medical cases chart/Bar colors|3}}
 |showValues=offset:2
 |xAxisAngle=-60
@@ -108,6 +111,7 @@ GRAPH;
 |y1={$data}
 |yGrid=
 }}
+</div>
 
 GRAPH;
     }
@@ -283,12 +287,13 @@ GRAPH;
         $data = implode(', ', $this->listTotalNewDeaths($cases->nationalCases()));
 
         return <<<GRAPH
-=== New deaths per day ===
+=== New deaths, per day ===
+<div style="max-width: 800px; overflow-x: scroll;">
 {{Graph:Chart
 |type=rect
 |linewidth=1
 |showSymbols=1
-|width=700
+|width=1400
 |colors={{Medical cases chart/Bar colors|1}}
 |showValues=offset:2
 |xAxisAngle=-60
@@ -299,6 +304,7 @@ GRAPH;
 |y1={$data}
 |yGrid=
 }}
+</div>
 
 GRAPH;
     }
@@ -480,7 +486,7 @@ TABLE;
         $end = $reportedCases->getLastReportedDate();
 
         return DatePeriod::create()
-            ->every('1 day')
+            ->every(DateInterval::make(1, 'day'))
             ->setDates('2020-02-26', $end->format('Y-m-d'))
             ->setDateClass(DateTimeImmutable::class)
             ->toArray();
