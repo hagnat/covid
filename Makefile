@@ -1,4 +1,4 @@
-COMPOSER ?= bin/composer
+COMPOSER ?= composer
 .DEFAULT_GOAL := all
 
 .PHONY: all
