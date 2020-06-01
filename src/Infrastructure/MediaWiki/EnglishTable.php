@@ -11,23 +11,40 @@ use Carbon\CarbonImmutable as DateTimeImmutable;
 use Carbon\CarbonInterface as DateTimeInterface;
 use Carbon\CarbonInterval as DateInterval;
 use Carbon\CarbonPeriod as DatePeriod;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 final class EnglishTable implements ParserInterface
 {
     private const VALUE_FORMAT = '{{#ifeq: {{{show|total}}} | new | %s | %s }}';
 
+    private $io;
+
+    public function __construct(SymfonyStyle $io)
+    {
+        $this->io = $io;
+    }
+
     public function parse($reportedCases): string
     {
+        $dates = $this->getDateRange($reportedCases);
+
+        $this->io->progressStart(2 + count($dates));
+
         $contents = $this->buildHeader();
+        $this->io->progressAdvance();
 
         $nationalCases = $reportedCases->nationalCases();
         $stateCases = $reportedCases->stateCases();
 
-        foreach ($this->getDateRange($reportedCases) as $date) {
+        foreach ($dates as $date) {
             $contents .= $this->buildRow($date, $nationalCases, $stateCases);
+            $this->io->progressAdvance();
         }
 
         $contents .= "\n" . $this->buildFooter();
+        $this->io->progressAdvance();
+
+        $this->io->progressFinish();
 
         return $contents;
     }

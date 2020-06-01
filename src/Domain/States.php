@@ -124,7 +124,7 @@ final class States extends ArrayIterator
         return $states;
     }
 
-    public function findByCode(string $code): ?State
+    public function findByCode(string $code): State
     {
         foreach ($this as $state) {
             if ($state->code() === $code) {
@@ -132,7 +132,7 @@ final class States extends ArrayIterator
             }
         }
 
-        return null;
+        return State::nullState();
     }
 
     public function northStates(): States

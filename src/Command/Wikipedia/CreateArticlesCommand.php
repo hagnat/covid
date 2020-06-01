@@ -17,6 +17,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Finder\Finder;
 use Throwable;
 
@@ -27,6 +28,7 @@ final class CreateArticlesCommand extends Command
     private $inputDir;
     private $outputDir;
     private $localOutputDir;
+    private $io;
 
     public function __construct(string $inputDir, string $outputDir)
     {
@@ -37,8 +39,16 @@ final class CreateArticlesCommand extends Command
         parent::__construct();
     }
 
-    private function setup(InputInterface $input)
+    protected function configure()
     {
+        $this->setDescription('Creates the wikipedia articles.');
+        $this->addArgument('language', InputArgument::REQUIRED, 'Language to generate.');
+    }
+
+    protected function initialize(InputInterface $input, OutputInterface $output)
+    {
+        $this->io = new SymfonyStyle($input, $output);
+
         $validLanguages = ['en', 'pt'];
 
         if (!in_array(mb_strtolower($input->getArgument('language')), $validLanguages)) {
@@ -53,53 +63,57 @@ final class CreateArticlesCommand extends Command
         @mkdir($this->localOutputDir);
     }
 
-    protected function configure()
-    {
-        $this->setDescription('Creates the wikipedia articles.');
-        $this->addArgument('language', InputArgument::REQUIRED, 'Language to generate.');
-    }
-
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         try {
-            $output->writeln('Setup.');
-            $this->setup($input);
-
-            $output->writeln(sprintf(
+            $this->io->title(sprintf(
                 'Parsing reported cases for the <info>%s</info> wikipedia.',
                 'pt' === $input->getArgument('language') ? 'portuguese' : 'english'
             ));
 
-            $output->writeln('Find latest data source.');
+            $this->io->text('Find latest data source.');
             $filename = $this->findLatestDataSource();
 
-            $output->writeln('Read data from data source.');
+            $this->io->text('Read data from data source.');
             $reportedCases = $this->readDataSource($filename);
 
-            $output->writeln('Get parsers for language.');
+            $this->io->text('Get parsers for language.');
             [$table, $graph, $chart] = $this->parsers($input->getArgument('language'));
 
             if ($table) {
-                $output->writeln('Parse table.');
+                $this->io->section('Parse table.');
                 $outputFile = $this->parseReportedCases($reportedCases, $table, 'table');
-                $output->writeln("Table parsed. Check <info>{$outputFile}</info>");
+                $this->io->text([
+                    'Table parsed.',
+                    "Check <info>{$outputFile}</info>",
+                ]);
             }
 
             if ($graph) {
-                $output->writeln('Parse graph.');
+                $this->io->section('Parse graph.');
                 $outputFile = $this->parseReportedCases($reportedCases, $graph, 'graph');
-                $output->writeln("Graph parsed. Check <info>{$outputFile}</info>");
+                $this->io->text([
+                    'Graph parsed.',
+                    "Check <info>{$outputFile}</info>",
+                ]);
             }
 
             if ($chart) {
-                $output->writeln('Parse chart.');
+                $this->io->section('Parse chart.');
                 $outputFile = $this->parseReportedCases($reportedCases, $chart, 'chart');
-                $output->writeln("Chart parsed. Check <info>{$outputFile}</info>");
+                $this->io->text([
+                    'Chart parsed.',
+                    "Check <info>{$outputFile}</info>",
+                ]);
             }
 
-            $output->writeln('<info>Articles created!</info>');
+            $this->io->success('Articles created!');
         } catch (Throwable $e) {
-            $output->writeln(sprintf('<error>%s</error>', $e->getMessage()));
+            $this->io->error([
+                'Error parsing articles',
+                $e->getMessage(),
+                $e->getTraceAsString(),
+            ]);
 
             return 1;
         }
@@ -115,13 +129,13 @@ final class CreateArticlesCommand extends Command
 
         switch (mb_strtolower($language)) {
             case 'en':
-                $chartParser = new EnglishChart();
-                $graphsParser = new EnglishGraphs();
-                $tableParser = new EnglishTable();
+                $chartParser = new EnglishChart($this->io);
+                $graphsParser = new EnglishGraphs($this->io);
+                $tableParser = new EnglishTable($this->io);
 
                 break;
             case 'pt':
-                $tableParser = new PortugueseTable();
+                $tableParser = new PortugueseTable($this->io);
 
                 break;
         }
@@ -147,7 +161,7 @@ final class CreateArticlesCommand extends Command
 
     private function readDataSource(string $filename): ReportedCases
     {
-        $reader = new CovidCsvReader();
+        $reader = new CovidCsvReader($this->io);
 
         return $reader->read($filename, ';');
     }

@@ -9,9 +9,17 @@ use App\Domain\ReportedCases;
 use Carbon\CarbonImmutable as DateTimeImmutable;
 use Carbon\CarbonInterval as DateInterval;
 use Carbon\CarbonPeriod as DatePeriod;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 final class EnglishChart implements ParserInterface
 {
+    private $io;
+
+    public function __construct(SymfonyStyle $io)
+    {
+        $this->io = $io;
+    }
+
     public function parse($reportedCases): string
     {
         $contents = $this->buildHeader($reportedCases);

@@ -22,8 +22,8 @@ final class ReportedCase
 
     private function __construct(
         Region $region,
-        ?State $state,
-        ?City $city,
+        State $state,
+        City $city,
         DateTimeInterface $day,
         int $cumulativeCases,
         int $cumulativeDeaths,
@@ -41,20 +41,19 @@ final class ReportedCase
     public static function fromCsv(array $data): ReportedCase
     {
         $region = Region::fromName($data['regiao'] ?? '');
-        $state = States::english()->findByCode($data['estado'] ?? null);
+        $state = States::english()->findByCode($data['estado'] ?? '');
 
         $cityCode = intval($data['codmun'] ?? 0);
         if ($cityCode) {
+            $population = intval($data['populacaoTCU2019'] ?? 0);
             $city = City::fromCode($cityCode)
                 ?? City::create(
                     $cityCode,
                     $data['municipio'] ?? '',
-                    intval(
-                        $data['populacaoTCU2019'] ?? 0
-                    )
+                    $population
                 );
         } else {
-            $city = null;
+            $city = City::nullCity();
         }
 
         try {
@@ -82,12 +81,12 @@ final class ReportedCase
         return $this->region;
     }
 
-    public function state(): ?State
+    public function state(): State
     {
         return $this->state;
     }
 
-    public function city(): ?City
+    public function city(): City
     {
         return $this->city;
     }
@@ -142,13 +141,21 @@ final class ReportedCase
 
     public function isStateLevel(): bool
     {
-        return null !== $this->state()
+        return !$this->state()->equals(State::nullState())
             && !$this->isLocalLevel();
     }
 
     public function isLocalLevel(): bool
     {
-        return null !== $this->city;
+        return !$this->city->equals(City::nullCity());
+    }
+
+    public function equals(ReportedCase $case): bool
+    {
+        return $this->sameDay($case->day())
+            && $this->sameRegion($case->region())
+            && $this->sameState($case->state())
+            && $this->sameCity($case->city());
     }
 
     public function sameRegion(Region $region): bool
@@ -158,12 +165,12 @@ final class ReportedCase
 
     public function sameState(State $state): bool
     {
-        return $this->state() && $this->state()->equals($state);
+        return $this->state()->equals($state);
     }
 
     public function sameCity(City $city): bool
     {
-        return $this->city() && $this->city()->equals($city);
+        return $this->city()->equals($city);
     }
 
     public function sameDay(DateTimeInterface $day)

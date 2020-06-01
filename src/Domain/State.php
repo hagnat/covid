@@ -21,6 +21,11 @@ final class State
         $this->wikipediaFlag = $wikipediaFlag ?? $name;
     }
 
+    public static function nullState(): self
+    {
+        return new static('[NULLL STATE]', 'NULL', Region::country(), null, null);
+    }
+
     public function equals(State $state): bool
     {
         return $this->code() === $state->code();

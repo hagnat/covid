@@ -11,10 +11,18 @@ use Carbon\CarbonImmutable as DateTimeImmutable;
 use Carbon\CarbonInterface as DateTimeInterface;
 use Carbon\CarbonInterval as DateInterval;
 use Carbon\CarbonPeriod as DatePeriod;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 final class PortugueseTable implements ParserInterface
 {
     private const VALUE_FORMAT = '{{#ifeq: {{{exibir|acumulados}}} | novos | %s | %s }}';
+
+    private $io;
+
+    public function __construct(SymfonyStyle $io)
+    {
+        $this->io = $io;
+    }
 
     public function parse($reportedCases): string
     {

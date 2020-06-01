@@ -4,19 +4,22 @@ declare(strict_types=1);
 
 namespace App\Command\Download;
 
+use App\Adapter\PhpOffice\CsvWriter;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx as ExcelReader;
-use PhpOffice\PhpSpreadsheet\Writer\Csv as CsvWriter;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Throwable;
 
 final class MinisterOfHealthCommand extends Command
 {
     protected static $defaultName = 'download:minister-of-health';
 
+    private $archiveFile;
     private $inputDir;
     private $tmpDir;
+    private $io;
 
     public function __construct(string $inputDir, string $tmpDir)
     {
@@ -31,12 +34,22 @@ final class MinisterOfHealthCommand extends Command
         $this->setDescription('Downloads data from the Minister of Health, saving it in a CSV format.');
     }
 
+    protected function initialize(InputInterface $input, OutputInterface $output)
+    {
+        $this->io = new SymfonyStyle($input, $output);
+    }
+
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $this->io->title('Downloads the COVID-19 pandemic data from the Brazillian Ministry of Health.');
+
         $archiveFile = sprintf('%s/%s-brasil-covid-data.csv', $this->inputDir, date('Y-m-d'));
 
         if (file_exists($archiveFile) && date('Y-m-d H', filemtime($archiveFile)) == date('Y-m-d H')) {
-            $output->writeln('<comment>File was recently updated. No need to download it again.</comment>');
+            $this->io->note([
+                'Local archived file was recently updated.',
+                'No need to download it again.',
+            ]);
 
             return 0;
         }
@@ -44,19 +57,35 @@ final class MinisterOfHealthCommand extends Command
         $tmpFile = null;
 
         try {
-            $output->writeln('Downloading current data.');
+            $this->io->text('Downloading Excel file.');
+            $data = $this->downloadData();
+
+            $this->io->text('Save Excel file to temporary file.');
             $tmpFile = $this->downloadData();
 
-            $output->writeln('Convert data to CSV format.');
-            $this->convertToCsv($tmpFile, $archiveFile);
+            $this->io->text('Reading contents from Excel file.');
+            $reader = new ExcelReader();
+            $reader->setReadDataOnly(true);
+            $spreadsheet = $reader->load($tmpFile);
 
-            $output->writeln('<info>Download complete!</info>');
+            $this->io->text('Converting data to CSV format.');
+            $writer = new CsvWriter($spreadsheet);
+            $writer = $writer->withSymfonyStyle($this->io);
+            $writer->setDelimiter(';');
+            $writer->setEnclosure('');
+            $writer->save($archiveFile);
+
+            $this->io->success('Download complete!');
         } catch (Throwable $e) {
-            $output->writeln(sprintf('<error>%s</error>', $e->getMessage()));
+            $this->io->error([
+                'Error downloading data.',
+                $e->getMessage(),
+            ]);
 
             return 1;
         } finally {
             if ($tmpFile) {
+                $this->io->text('Removing temporary file.');
                 unlink($tmpFile);
             }
         }
@@ -84,17 +113,5 @@ final class MinisterOfHealthCommand extends Command
         file_put_contents($tmpFile, $data);
 
         return $tmpFile;
-    }
-
-    private function convertToCsv(string $excelFilename, string $archiveFilename): void
-    {
-        $reader = new ExcelReader();
-        $reader->setReadDataOnly(true);
-        $spreadsheet = $reader->load($excelFilename);
-
-        $writer = new CsvWriter($spreadsheet);
-        $writer->setDelimiter(';');
-        $writer->setEnclosure('');
-        $writer->save($archiveFilename);
     }
 }

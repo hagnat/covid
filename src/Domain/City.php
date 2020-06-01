@@ -31,6 +31,11 @@ final class City
         $this->population = $population;
     }
 
+    public static function nullCity(): self
+    {
+        return new static(0, '[Null City]', 0);
+    }
+
     public static function create(int $code, string $name, int $population)
     {
         if (empty(static::$instances[$code])) {

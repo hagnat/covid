@@ -12,17 +12,31 @@ use Carbon\CarbonImmutable as DateTimeImmutable;
 use Carbon\CarbonInterface as DateTimeInterface;
 use Carbon\CarbonInterval as DateInterval;
 use Carbon\CarbonPeriod as DatePeriod;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 final class EnglishGraphs implements ParserInterface
 {
+    private $io;
+
+    public function __construct(SymfonyStyle $io)
+    {
+        $this->io = $io;
+    }
+
     public function parse($cases): string
     {
+        $this->io->progressStart(12);
+
         $contents = $this->buildHeader();
+        $this->io->progressAdvance();
 
         $contents .= "\n" . $this->buildStatisticalGraphs($cases);
         $contents .= "\n" . $this->buildHistoricalTable($cases);
 
         $contents .= "\n" . $this->buildFooter();
+        $this->io->progressAdvance();
+
+        $this->io->progressFinish();
 
         return $contents;
     }
@@ -35,20 +49,28 @@ final class EnglishGraphs implements ParserInterface
 
         $contents .= "\n<div style='display: inline-block; width: 800px; vertical-align: top;'>";
         $contents .= "\n" . $this->buildTotalConfirmedCasesGraph($cases);
+        $this->io->progressAdvance();
         $contents .= "\n" . $this->buildNewConfirmedCasesGraph($cases);
+        $this->io->progressAdvance();
         $contents .= "\n<noinclude>";
         $contents .= "\n" . $this->buildTotalConfirmedCasesByRegionGraph($cases);
+        $this->io->progressAdvance();
         $contents .= "\n" . $this->buildGrowthOfConfirmedCases($cases);
+        $this->io->progressAdvance();
         //$contents .= "\n" . $this->buildTotalConfirmedCasesByCapital($cases);
         $contents .= "\n</noinclude>";
         $contents .= "\n</div>";
 
         $contents .= "\n<div style='display: inline-block; width: 800px; vertical-align: top;'>";
         $contents .= "\n" . $this->buildTotalConfirmedDeathsGraphs($cases);
+        $this->io->progressAdvance();
         $contents .= "\n" . $this->buildNewConfirmedDeathsGraphs($cases);
+        $this->io->progressAdvance();
         $contents .= "\n<noinclude>";
         $contents .= "\n" . $this->buildTotalConfirmedDeathsByRegionGraph($cases);
+        $this->io->progressAdvance();
         $contents .= "\n" . $this->buildGrowthOfConfirmedDeaths($cases);
+        $this->io->progressAdvance();
         $contents .= "\n</noinclude>";
         $contents .= "\n</div>";
 
@@ -95,23 +117,22 @@ GRAPH;
 
         return <<<GRAPH
 === New cases, per day ===
-<div style="max-width: 800px; overflow-x: scroll;">
 {{Graph:Chart
-|type=rect
-|linewidth=1
+|type=line
+|linewidth=2
 |showSymbols=1
-|width=1400
+|width=700
 |colors={{Medical cases chart/Bar colors|3}}
-|showValues=offset:2
-|xAxisAngle=-60
+|showValues=
 |xAxisTitle=Date
+|xType=date
+|xAxisFormat=%b %e
 |x={$dates}
 |y1Title=New cases
 |yAxisTitle=New cases
 |y1={$data}
-|yGrid=
+|yGrid= |xGrid=
 }}
-</div>
 
 GRAPH;
     }
@@ -288,23 +309,22 @@ GRAPH;
 
         return <<<GRAPH
 === New deaths, per day ===
-<div style="max-width: 800px; overflow-x: scroll;">
 {{Graph:Chart
-|type=rect
-|linewidth=1
+|type=line
+|linewidth=2
 |showSymbols=1
-|width=1400
+|width=700
 |colors={{Medical cases chart/Bar colors|1}}
-|showValues=offset:2
-|xAxisAngle=-60
+|showValues=
 |xAxisTitle=Date
+|xType=date
+|xAxisFormat=%b %e
 |x={$dates}
 |y1Title=New deaths
 |yAxisTitle=New deaths
 |y1={$data}
-|yGrid=
+|yGrid= |xGrid=
 }}
-</div>
 
 GRAPH;
     }

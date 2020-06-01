@@ -32,7 +32,7 @@ final class ReportedCases implements Countable
 
     public function getArrayCopy(): array
     {
-        return $this->cases;
+        return array_values($this->cases);
     }
 
     public function add(ReportedCase ...$cases)
@@ -42,11 +42,11 @@ final class ReportedCases implements Countable
                 continue;
             }
 
-            // if ($this->contains($case)) {
-            //     continue;
-            // }
+            if ($this->contains($case)) {
+                continue;
+            }
 
-            $this->cases[] = $case;
+            $this->cases[$this->createIndex($case)] = $case;
 
             $this->indexByDate($case);
             $this->indexByRegion($case);
@@ -57,20 +57,7 @@ final class ReportedCases implements Countable
 
     public function contains(ReportedCase $case): bool
     {
-        if (empty($this->indexByDate[$case->day()->format(static::DAY_INDEX_FORMAT)])) {
-            return false;
-        }
-        if (empty($this->indexByRegion[$case->region()->code()])) {
-            return false;
-        }
-        if ($case->state() && empty($this->indexByState[$case->state()->code()])) {
-            return false;
-        }
-        if ($case->city() && empty($this->indexByCity[$case->city()->code()])) {
-            return false;
-        }
-
-        return true;
+        return !empty($this->cases[$this->createIndex($case)]);
     }
 
     public function merge(ReportedCases $cases)
@@ -84,7 +71,7 @@ final class ReportedCases implements Countable
 
     public function nationalCases(): ReportedCases
     {
-        $cases = array_filter($this->cases, function (ReportedCase $case) {
+        $cases = array_filter(array_values($this->cases), function (ReportedCase $case) {
             return $case->isNationalLevel();
         });
 
@@ -93,7 +80,7 @@ final class ReportedCases implements Countable
 
     public function stateCases(): ReportedCases
     {
-        $cases = array_filter($this->cases, function (ReportedCase $case) {
+        $cases = array_filter(array_values($this->cases), function (ReportedCase $case) {
             return $case->isStateLevel();
         });
 
@@ -102,7 +89,7 @@ final class ReportedCases implements Countable
 
     public function localCases(): ReportedCases
     {
-        $cases = array_filter($this->cases, function (ReportedCase $case) {
+        $cases = array_filter(array_values($this->cases), function (ReportedCase $case) {
             return $case->isLocalLevel();
         });
 
@@ -220,6 +207,11 @@ final class ReportedCases implements Countable
         return DateTimeImmutable::createFromFormat('!' . static::DAY_INDEX_FORMAT, $firstReportedDate ?: '2020-02-24');
     }
 
+    private function createIndex(ReportedCase $case): string
+    {
+        return sprintf('%s;%s;%s;%s', $case->day()->format('Y-m-d'), $case->region()->code(), $case->state()->code(), $case->city()->code());
+    }
+
     private function indexByDate(ReportedCase $case)
     {
         $this->indexByDate[$case->day()->format(static::DAY_INDEX_FORMAT)][] = $case;
@@ -234,7 +226,7 @@ final class ReportedCases implements Countable
 
     private function indexByState(ReportedCase $case)
     {
-        if (null === $case->state()) {
+        if ($case->state()->equals(State::nullState())) {
             return;
         }
 
@@ -243,7 +235,7 @@ final class ReportedCases implements Countable
 
     private function indexByCity(ReportedCase $case)
     {
-        if (null === $case->city()) {
+        if ($case->city()->equals(City::nullCity())) {
             return;
         }
 
